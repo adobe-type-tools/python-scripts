@@ -30,7 +30,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __usage__ = """
-UFOInstanceGenerator v1.0 - Mar 11 2013
+UFOInstanceGenerator v1.0 - Mar 10 2013
 
 python UFOInstanceGenerator.py -h
 python UFOInstanceGenerator.py [<input_folder_path>] [-o <output_folder_path>] [-kern] [-mark] [-min <integer>] [...]
@@ -154,19 +154,7 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
 
 ==================================================
 Versions:
-v1.0 - Apr 24 2007 - Initial release
-v1.1 - Dec 03 2007 - Robofab dependency removed (code changes suggested by Karsten Luecke)
-v1.2 - Mar 04 2008 - Macro partly rewritten to avoid FontLab Windows crashing
-v1.5 - Mar 03 2009 - Added support for "MM exception glyphs" and overrides for the instance font FontDict.
-				 Use FDK commands to make font instances, and to remove overlaps and autohint.
-v1.6 - May 01 2009 - Added a few more lines to the help text, fixed a syntax warning when opening the dialog.
-v2.0 - Feb 15 2010 - Added option to generate 'mark' feature. Improved the code where needed, and removed unused code.
-				 Moved the code that creates the files for the command-line makeInstances (mmfont.pfa, temp.composite.dat) 
-				 to a separate macro called "SaveFilesForMakeInstances.py"
-v2.1 - Feb 19 2010 - Improved the dialog window.
-v2.2 - Apr 21 2011 - Added the option of writing the mark classes in a separate file
-v2.3 - Jun 15 2012 - Added the option to output the lookups in the format required for Indian scripts.
-v2.3.1 - Jul 19 2012 - Changed the description of one of the options in the UI.
+v1.0 - Mar 10 2013 - Initial release
 
 """
 
