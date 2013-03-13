@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 ###################################################
 ### THE VALUES BELOW CAN BE EDITED AS NEEDED ######
 ###################################################
@@ -30,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __usage__ = """
-UFOInstanceGenerator v1.0 - Mar 10 2013
+UFOInstanceGenerator v1.0.1 - Mar 13 2013
 
 python UFOInstanceGenerator.py -h
 python UFOInstanceGenerator.py [<input_folder_path>] [-o <output_folder_path>] [-kern] [-mark] [-min <integer>] [...]
@@ -154,7 +156,8 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
 
 ==================================================
 Versions:
-v1.0 - Mar 10 2013 - Initial release
+v1.0   - Mar 10 2013 - Initial release
+v1.0.1 - Mar 13 2013 - Added shebang
 
 """
 
