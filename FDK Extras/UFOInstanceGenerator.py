@@ -487,9 +487,8 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	#	- glyph widths for the whole font
 	ufoInstance.interpolate(interpolationFactor, ufoMasters[0], ufoMasters[1])
 	
-	# Round all the point coordinates to integers
-	for glyph in ufoInstance:
-		glyph.round()
+	# Round all the point coordinates to whole integer numbers
+	ufoInstance.round()
 
 	# Interpolate the kerning
 	# Documentation: http://www.robofab.org/objects/kerning.html
