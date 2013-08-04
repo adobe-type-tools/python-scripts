@@ -23,12 +23,12 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __doc__ = """
-buildAll v1.0 - Feb 22 2013
+buildAll v1.1 - Aug 04 2013
 
 This script takes a path to a folder as input, finds all the Type 1 fonts
-(.pfa files) inside that folder and its subdirectories, and builds the 
-OpenType (.otf) fonts using the FDK's makeotf tool. If a path is not 
-provided, the script will use the current path as the top-most directory.
+(.pfa files) or UFO fonts inside that folder and its subdirectories, and 
+builds the OpenType (.otf) fonts using the FDK's makeotf tool. If a path is 
+not provided, the script will use the current path as the top-most directory.
 The script ignores MM PFA fonts, usually named 'mmfont.pfa'.
 The Type 1 fonts can also be in plain text format (.txt) where the Private 
 and CharStrings dictionaries are not encrypted. These files can be obtained
@@ -37,6 +37,7 @@ by using the FDK's detype1 tool.
 ==================================================
 Versions:
 v1.0 - Feb 22 2013 - Initial release
+v1.1 - Aug 04 2013 - Added support for UFO files
 """
 
 import sys, os, time
@@ -49,10 +50,13 @@ fontsList = []
 
 
 def getFontPaths(path):
-	for r,d,files in os.walk(path):
-		for file in files:
-			if (file[-4:] in [".pfa"] and file not in ["mmfont.pfa"]) or (file in [kFontTXT]):
-				fontsList.append(os.path.join(r, file))
+	for r, folders, files in os.walk(path):
+		fileAndFolderList = folders[:]
+		fileAndFolderList.extend(files)
+		
+		for item in fileAndFolderList:
+			if (item[-4:].lower() in [".pfa"] and item not in ["mmfont.pfa"]) or (item in [kFontTXT]) or (item[-4:].lower() in [".ufo"]):
+				fontsList.append(os.path.join(r, item))
 
 
 def doTask(fonts):
