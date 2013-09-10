@@ -32,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __usage__ = """
-UFOInstanceGenerator v1.0.1 - Mar 13 2013
+UFOInstanceGenerator v2.0 - Sep 05 2013
 
 python UFOInstanceGenerator.py -h
 python UFOInstanceGenerator.py [<input_folder_path>] [-o <output_folder_path>] [-kern] [-mark] [-min <integer>] [...]
@@ -52,7 +52,7 @@ MAIN OPTIONS
 -mark	Generate 'mark' feature
 -hint	Autohint the font instances
 -flat	Flatten the glyphs (i.e. remove overlaps)
--ufos	Keep UFO instance files
+-nufo	Do not save the UFO instance files
 
 KERN FEATURE OPTIONS
 -min	Minimum kern value (inclusive). Default is 3 units
@@ -68,31 +68,26 @@ MARK FEATURE OPTIONS
 """
 
 __doc__ = """
-This script will generate a set of single-master fonts ("instances") from a series of
-master design fonts. The master designs must adhere to the rules of a Multiple Master
-design space. For each instance, the script will create a Unix-style Type 1 font file
-(a.k.a. PFA) and optionally a UFO file. The script can also write 'kern', 'mark' and 
-'mkmk' feature files for each instance. These files will be saved in the same folder as 
-the Type 1 font instance.
+This script will generate a set of UFO instances from a series of master design fonts.
+The master designs must be compatible. For each instance, in addition to creating a UFO 
+font file, the script can also write 'kern', 'mark' and 'mkmk' feature files. These 
+files will be saved in the same folder as the UFO font instance.
 
-For information about how the "features.kern" file is created, please read the 
-documentation in the WriteFeaturesKernFDK.py module.
+For information about how the "kern.fea" file is created, please read the documentation 
+in the WriteFeaturesKernFDK.py module.
 
-For information about how the "features.mark/mkmk" files are created, please read the 
+For information about how the "mark/mkmk.fea" files are created, please read the 
 documentation in the WriteFeaturesMarkFDK.py module.
 
-To access the script's options, run it with the option '-h', like so:
-python UFOInstanceGenerator.py -u
-
-The Type 1 font files are written to a sub-directory path <selected_folder>/<face_name>, 
+The UFO font files are written to a sub-directory path <selected_folder>/<face_name>, 
 where the face name is derived by taking the part of the font's PostScript name after the 
 hyphen, or "Regular" if there is no hyphen (e.g. if the font's PostScript name is 
 MyFont-BoldItalic, the folder will be named "BoldItalic")
 
 This script depends on info provided by an external simple text file named "instances".
 The data supplied in this file, is used for specifying the instance's values, and for 
-providing the font names used in the FontInfo dictionary of the Type 1 fonts. The "instances" 
-file must be located in the same folder as the MM FontLab file. Each line specifies one 
+providing the font names used in the UFO's fontinfo.plist file. The "instances" file 
+must be located in the same folder as the UFO master files. Each line specifies one 
 instance, as a record of tab-delimited fields. The first 6 fields are always, in order:
 
   FamilyName : This is the Preferred Family name.
@@ -102,14 +97,15 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
   Coords     : This is a single value, or a sequence of comma-separated integer values.
 			Each integer value corresponds to an axis.
   IsBold     : This must be either 1 (True) or 0 (False). This will be translated into
-			Postscript FontDict ForceBold field.
+			Postscript FontDict ForceBold field. The recommended value is 0 for all the
+			instances.
 
   Examples:
-	# Font with 1 axis (single-axis MM font)
+	# Two masters, one axis
 	MyFontStd<tab>MyFontStd-Bold<tab>MyFont Std Bold<tab>Bold<tab>650<tab>1
 	MyFontStd<tab>MyFontStd-Regular<tab>MyFont Std Regular<tab>Regular<tab>350<tab>0	
 
-	# Font with 2 axis (multi-axis MM font)
+	# Four masters, two axes
 	MyFontPro<tab>MyFontPro-Bold<tab>MyFont Pro Bold<tab>Bold<tab>650,300<tab>1
 	MyFontPro<tab>MyFontPro-Regular<tab>MyFont Pro Regular<tab>Regular<tab>350,300<tab>0
 
@@ -158,13 +154,14 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
 Versions:
 v1.0   - Mar 10 2013 - Initial release
 v1.0.1 - Mar 13 2013 - Added shebang
+v2.0   - Sep 05 2013 - Removed the step of handling Type 1 files; UFO is now the default font format.
+                       Added the option to not save the fonts.
+                       Removed the dependencies on 'ufo2fdk' and 'defcon' now that the FDK tools support the UFO format natively.
 
 """
 
 import os, sys, time, copy, re, math, shutil
 from subprocess import Popen, PIPE
-from ufo2fdk import OutlineOTFCompiler
-from defcon import Font
 from robofab.world import NewFont, OpenFont
 from robofab.objects import objectsBase
 
@@ -599,16 +596,19 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 			tempArray.append(int(round(objectsBase._interpolate(ufoMasters[0].info.postscriptStemSnapV[i], ufoMasters[1].info.postscriptStemSnapV[i], interpolationFactor))))
 		ufoInstance.info.postscriptStemSnapV = tempArray
 	
-	# Save UFO instance
-	print '\tSaving %s file...' % kFontInstanceFileName
+
 	faceFolder = makeFaceFolder(outputDirPath, faceName)
 	ufoPath = os.path.join(faceFolder, kFontInstanceFileName)
+
+	# Save UFO instance
+	if not options.noUFOs:
+		print '\tSaving %s file...' % kFontInstanceFileName
 	
-	# Delete the old UFO file, if it exists
-	while os.path.exists(ufoPath):
-		shutil.rmtree(ufoPath)
+		# Delete the old UFO file, if it exists
+		while os.path.exists(ufoPath):
+			shutil.rmtree(ufoPath)
 	
-	ufoInstance.save(ufoPath)
+		ufoInstance.save(ufoPath)
 	
 	# Generate 'kern' feature
 	if options.genKernFeature:
@@ -624,39 +624,6 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		WriteFeaturesMarkFDK.MarkDataClass(ufoInstance, faceFolder, options.trimCasingTags, options.genMkmkFeature, options.writeClassesFile, options.indianScriptsFormat)
 	
 	
-	# Convert UFO file to PFA (using ufo2fdk, defcon and tx)
-	# -------------------------------------------------------------
-	print '\tConverting font.ufo to font.pfa...'
-	# Read UFO font
-	ufoFont = Font(ufoPath)
-	
-	# Assemble OTF & PFA file names
-	otfPath = ufoPath[:-4] + '.otf'
-	pfaPath = ufoPath[:-4] + '.pfa'
-	
-	# Generate OTF font
-	compiler = OutlineOTFCompiler(ufoFont, otfPath, glyphOrder=ufoFont.lib['public.glyphOrder'])
-	compiler.compile()
-	
-	# Convert OTF to PFA using tx
-	cmd = 'tx -t1 "%s" > "%s"' % (otfPath, pfaPath)
-	popen = Popen(cmd, shell=True, stdout=PIPE)
-	popenout, popenerr = popen.communicate()
-	if popenout:
-		print popenout
-	if popenerr:
-		print popenerr
-	
-	# Delete OTF font
-	if os.path.exists(otfPath):
-		os.remove(otfPath)
-	
-	# Delete the UFO instance, unless the option to keep it was used
-	if not options.keepUFOs:
-		while os.path.exists(ufoPath):
-			shutil.rmtree(ufoPath)
-	# -------------------------------------------------------------
-	
 	# Decompose and remove overlaps (using checkoutlines)
 	if options.flatten:
 		print '\tFlattening the glyphs...'
@@ -664,7 +631,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 			coTool = 'checkoutlines.cmd'
 		else:
 			coTool = 'checkoutlines'
-		cmd = '%s -I -O -e "%s"' % (coTool, pfaPath)
+		cmd = '%s -I -O -e "%s"' % (coTool, ufoPath)
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
 		if options.verboseMode:
@@ -676,7 +643,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	# Autohint
 	if options.autohint:
 		print '\tHinting the font...'
-		cmd = 'autohint -a -q "%s"' % pfaPath
+		cmd = 'autohint -q "%s"' % ufoPath
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
 		if options.verboseMode:
@@ -685,36 +652,22 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		if popenerr:
 			print popenerr
 	
-	# Add the Creation date to the file (removed by tx)
-	fp = open(pfaPath, "rt")
-	pfaFont = fp.read()
-	fp.close()
-	begin = re.search(r"(\s+)%%BeginResource", pfaFont)
-	if not begin:
-		print >> sys.stderr, "\tWARNING: Could not add the CreationDate to the PFA file"
-	insertPos = begin.start()
-	dateString = "%%CreationDate %s" % time.asctime()
-	pfaFontNew = pfaFont[:insertPos] + begin.group(1) + dateString + pfaFont[insertPos:]
-	fp = open(pfaPath, "wt")
-	fp.write(pfaFontNew)
-	fp.close()
-
 
 class Options:
 	def __init__(self):
-		self.verboseMode = 0
-		self.genKernFeature = 0
-		self.genMarkFeature = 0
-		self.genMkmkFeature = 0
-		self.writeClassesFile = 0
-		self.indianScriptsFormat = 0
-		self.keepUFOs = 0
+		self.verboseMode = False
+		self.genKernFeature = False
+		self.genMarkFeature = False
+		self.genMkmkFeature = False
+		self.writeClassesFile = False
+		self.indianScriptsFormat = False
+		self.noUFOs = False
 		self.minKern = 3
-		self.writeTrimmed = 0
-		self.writeSubtables = 0
-		self.trimCasingTags = 0
-		self.autohint = 0
-		self.flatten = 0
+		self.writeTrimmed = False
+		self.writeSubtables = False
+		self.trimCasingTags = False
+		self.autohint = False
+		self.flatten = False
 		
 
 def getOptions(baseFolderPath):
@@ -736,7 +689,7 @@ def getOptions(baseFolderPath):
 			print __doc__
 			raise
 		elif arg == "-v":
-			options.verboseMode = 1
+			options.verboseMode = True
 		elif arg == "-o":
 			i += 1
 			try:
@@ -764,27 +717,27 @@ def getOptions(baseFolderPath):
 				print >> sys.stderr, "OPTION ERROR: It looks like the minimum value is not an integer."
 				raise
 		elif arg == "-kern":
-			options.genKernFeature = 1
+			options.genKernFeature = True
 		elif arg == "-mark":
-			options.genMarkFeature = 1
-		elif arg == "-ufos":
-			options.keepUFOs = 1
+			options.genMarkFeature = True
+		elif arg == "-nufo":
+			options.noUFOs = True
 		elif arg == "-wtr":
-			options.writeTrimmed = 1
+			options.writeTrimmed = True
 		elif arg == "-wsb":
-			options.writeSubtables = 1
+			options.writeSubtables = True
 		elif arg == "-mkmk":
-			options.genMkmkFeature = 1
+			options.genMkmkFeature = True
 		elif arg == "-clas":
-			options.writeClassesFile = 1
+			options.writeClassesFile = True
 		elif arg == "-indi":
-			options.indianScriptsFormat = 1
+			options.indianScriptsFormat = True
 		elif arg == "-trtg":
-			options.trimCasingTags = 1
+			options.trimCasingTags = True
 		elif arg == "-hint":
-			options.autohint = 1
+			options.autohint = True
 		elif arg == "-flat":
-			options.flatten = 1
+			options.flatten = True
 		elif arg[0] == "-":
 			print >> sys.stderr, "OPTION ERROR: Unknown option <%s>." %  arg
 			raise
@@ -792,7 +745,7 @@ def getOptions(baseFolderPath):
 
 	# To do the 'mkmk' feature, the 'mark' feature must be done as well, therefore enable it
 	if options.genMkmkFeature and not options.genMarkFeature:
-		options.genMarkFeature = 1
+		options.genMarkFeature = True
 
 	return options
 
@@ -801,7 +754,7 @@ def getFontPaths(path):
 	fontsList = []
 	instancesFile = None
 	for file in os.listdir(path):
-		if file[-4:] in [".ufo", ".UFO"]:
+		if file[-4:].lower() in [".ufo"]:
 			fontsList.append(os.path.join(path, file))
 		elif file[-len(kInstancesDataFileName):] == kInstancesDataFileName:
 			instancesFile = os.path.join(path, file)
