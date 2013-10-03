@@ -498,6 +498,9 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		if len(ufoMasters[0][glyphName]) != len(ufoInstance[glyphName]):
 			print "\tWARNING: Interpolation failed in glyph %s" % glyphName
 
+	styleName = instanceInfo[kFullName].lstrip(instanceInfo[kFamilyName])
+	ufoInstance.info.styleName = styleName
+
 	ufoInstance.info.familyName = instanceInfo[kFamilyName]
 	ufoInstance.info.postscriptFontName = instanceInfo[kFontName]
 	ufoInstance.info.postscriptFullName = instanceInfo[kFullName]
