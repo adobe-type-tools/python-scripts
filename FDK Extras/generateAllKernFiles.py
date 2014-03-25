@@ -74,9 +74,10 @@ def getFontPaths(path, startpath):
 def doTask(fonts):
 	totalFonts = len(fonts)
 	print "%d fonts found\n" % totalFonts
-	i = 1
+	i = 0
 
 	for font in fonts:
+		i += 1
 		folderPath, fontFileName = os.path.split(font)  # path to the folder where the font is contained and the font's file name
 		styleName = os.path.basename(folderPath) # name of the folder where the font is contained
 
