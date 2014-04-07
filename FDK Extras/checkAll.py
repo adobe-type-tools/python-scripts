@@ -87,7 +87,7 @@ def doTask(fonts):
 		print '*******************************'
 		print 'Checking %s...(%d/%d)' % (styleName, i, totalFonts)
 		i += 1
-		cmd = 'checkOutlines -I -e "%s"' % fontFileName
+		cmd = 'checkOutlines -e "%s"' % fontFileName
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
 		if popenout:
