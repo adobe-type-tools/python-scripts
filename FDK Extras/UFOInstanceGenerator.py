@@ -634,7 +634,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 			coTool = 'checkoutlines.cmd'
 		else:
 			coTool = 'checkoutlines'
-		cmd = '%s -I -O -e "%s"' % (coTool, ufoPath)
+		cmd = '%s -e "%s"' % (coTool, ufoPath)
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
 		if options.verboseMode:
