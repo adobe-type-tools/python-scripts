@@ -32,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __usage__ = """
-UFOInstanceGenerator v2.0 - Sep 05 2013
+UFOInstanceGenerator v2.0.1 - Apr 22 2014
 
 python UFOInstanceGenerator.py -h
 python UFOInstanceGenerator.py [<input_folder_path>] [-o <output_folder_path>] [-kern] [-mark] [-min <integer>] [...]
@@ -157,6 +157,7 @@ v1.0.1 - Mar 13 2013 - Added shebang
 v2.0   - Sep 05 2013 - Removed the step of handling Type 1 files; UFO is now the default font format.
                        Added the option to not save the fonts.
                        Removed the dependencies on 'ufo2fdk' and 'defcon' now that the FDK tools support the UFO format natively.
+v2.0.1 - Apr 22 2014 - Added Unicode values to glyphs in interpolated instances.
 
 """
 
@@ -495,10 +496,12 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		ufoInstance.kerning.round(1) # convert the interpolated values to integers
 	
 	for glyphName in glyphOrder:
+		ufoInstance[glyphName].unicode = ufoMasters[0][glyphName].unicode
+
 		if len(ufoMasters[0][glyphName]) != len(ufoInstance[glyphName]):
 			print "\tWARNING: Interpolation failed in glyph %s" % glyphName
 
-	styleName = instanceInfo[kFullName].lstrip(instanceInfo[kFamilyName])
+	styleName = instanceInfo[kFullName].replace(instanceInfo[kFamilyName], '').strip()
 	ufoInstance.info.styleName = styleName
 
 	ufoInstance.info.familyName = instanceInfo[kFamilyName]
