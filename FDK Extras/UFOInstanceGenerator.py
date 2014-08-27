@@ -509,8 +509,6 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	ufoInstance.info.postscriptFullName = instanceInfo[kFullName]
 	ufoInstance.info.postscriptWeightName = instanceInfo[kWeight]
 	ufoInstance.info.postscriptForceBold = True if instanceInfo[kIsBoldKey] else False
-	# info about the instance value and the masters used for interpolation
-	ufoInstance.info.styleMapFamilyName = ','.join([str(i) for i in instanceInfo[kCoordsKey]]) + ' : ' + ' / '.join([os.path.basename(master.path) for master in ufoMasters])
 	
 	ufoInstance.lib = ufoMasters[0].lib
 	ufoInstance.groups = ufoMasters[0].groups
