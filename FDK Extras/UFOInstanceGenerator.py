@@ -10,7 +10,7 @@ kInstancesDataFileName = "instances"
 ###################################################
 
 __copyright__ = __license__ =  """
-Copyright (c) 2013 Adobe Systems Incorporated. All rights reserved.
+Copyright (c) 2014 Adobe Systems Incorporated. All rights reserved.
  
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"), 
@@ -32,7 +32,7 @@ DEALINGS IN THE SOFTWARE.
 """
 
 __usage__ = """
-UFOInstanceGenerator v2.0.1 - Apr 22 2014
+UFOInstanceGenerator v2.1 - Dec 02 2014
 
 python UFOInstanceGenerator.py -h
 python UFOInstanceGenerator.py [<input_folder_path>] [-o <output_folder_path>] [-kern] [-mark] [-min <integer>] [...]
@@ -95,19 +95,25 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
   FullName   : This is the Preferred Full name.
   Weight     : This is the Weight name.
   Coords     : This is a single value, or a sequence of comma-separated integer values.
-			Each integer value corresponds to an axis.
+			   Each integer value corresponds to an axis.
   IsBold     : This must be either 1 (True) or 0 (False). This will be translated into
-			Postscript FontDict ForceBold field. The recommended value is 0 for all the
-			instances.
+			   Postscript FontDict ForceBold field. The recommended value is 0 for all the
+			   instances.
+  Masters    : Optional. This is for using intermediate masters in a linear interpolation,
+			   The masters are specified as a tuple of file names (see example below).
+
+
 
   Examples:
 	# Two masters, one axis
 	MyFontStd<tab>MyFontStd-Bold<tab>MyFont Std Bold<tab>Bold<tab>650<tab>1
 	MyFontStd<tab>MyFontStd-Regular<tab>MyFont Std Regular<tab>Regular<tab>350<tab>0	
 
-	# Four masters, two axes
-	MyFontPro<tab>MyFontPro-Bold<tab>MyFont Pro Bold<tab>Bold<tab>650,300<tab>1
-	MyFontPro<tab>MyFontPro-Regular<tab>MyFont Pro Regular<tab>Regular<tab>350,300<tab>0
+	# Three masters, one axis (interpolation with intermediate master)
+	MyFontPro<tab>MyFontPro-Light<tab>MyFontPro Light<tab>Light <tab>(408)<tab>0<tab>("MyFontPro_0.ufo", "MyFontPro_1.ufo")
+	MyFontPro<tab>MyFontPro-Regular<tab>MyFontPro<tab>Regular<tab>(41)<tab>0<tab>("MyFontPro_1.ufo", "MyFontPro_2.ufo")
+	MyFontPro<tab>MyFontPro-Semibold<tab>MyFontPro Semibold<tab>Semibold<tab>(367)<tab>0<tab>("MyFontPro_1.ufo", "MyFontPro_2.ufo")
+
 
 (All empty lines and all the lines that start with the number sign (#) are ignored.)
 
@@ -158,6 +164,7 @@ v2.0   - Sep 05 2013 - Removed the step of handling Type 1 files; UFO is now the
                        Added the option to not save the fonts.
                        Removed the dependencies on 'ufo2fdk' and 'defcon' now that the FDK tools support the UFO format natively.
 v2.0.1 - Apr 22 2014 - Added Unicode values to glyphs in interpolated instances.
+v2.1   - Dec 02 2014 - Added the possibility to use intermediate masters.
 
 """
 
@@ -184,17 +191,18 @@ except ImportError:
 	raise
 
 
-kFieldsKey = "#KEYS:"
-kFamilyName = "FamilyName"
-kFontName = "FontName"
-kFullName = "FullName"
-kWeight = "Weight"
-kCoordsKey = "Coords"
-kIsBoldKey = "IsBold" # This is changed to kForceBold in the instanceDict when reading in the instance file.
-kForceBold = "ForceBold"
-kIsItalicKey = "IsItalic"
+kFieldsKey         = "#KEYS:"
+kFamilyName        = "FamilyName"
+kFontName          = "FontName"
+kFullName          = "FullName"
+kWeight            = "Weight"
+kCoordsKey         = "Coords"
+kIsBoldKey         = "IsBold" # This is changed to kForceBold in the instanceDict when reading in the instance file.
+kForceBold         = "ForceBold"
+kIsItalicKey       = "IsItalic"
 kExceptionSuffixes = "ExceptionSuffixes"
-kExtraGlyphs = "ExtraGlyphs"
+kExtraGlyphs       = "ExtraGlyphs"
+kMasters           = "Masters"
 
 kFixedFieldKeys = {
 		# field index: key name
@@ -208,28 +216,28 @@ kFixedFieldKeys = {
 
 kNumFixedFields = len(kFixedFieldKeys)
 
-kBlueScale = "BlueScale"
-kBlueShift = "BlueShift"
-kBlueFuzz = "BlueFuzz"
-kBlueValues = "BlueValues"
-kOtherBlues = "OtherBlues"
-kFamilyBlues = "FamilyBlues"
+kBlueScale        = "BlueScale"
+kBlueShift        = "BlueShift"
+kBlueFuzz         = "BlueFuzz"
+kBlueValues       = "BlueValues"
+kOtherBlues       = "OtherBlues"
+kFamilyBlues      = "FamilyBlues"
 kFamilyOtherBlues = "FamilyOtherBlues"
-kStdHW = "StdHW"
-kStdVW = "StdVW"
-kStemSnapH = "StemSnapH"
-kStemSnapV = "StemSnapV"
+kStdHW            = "StdHW"
+kStdVW            = "StdVW"
+kStemSnapH        = "StemSnapH"
+kStemSnapV        = "StemSnapV"
 
-kHintingKeys = [kBlueScale, kBlueShift, kBlueFuzz, kBlueValues, kOtherBlues, kFamilyBlues, kFamilyOtherBlues, kStdHW, kStdVW, kStemSnapH, kStemSnapV]
+kHintingKeys        = [kBlueScale, kBlueShift, kBlueFuzz, kBlueValues, kOtherBlues, kFamilyBlues, kFamilyOtherBlues, kStdHW, kStdVW, kStemSnapH, kStemSnapV]
 kAlignmentZonesKeys = [kBlueValues, kOtherBlues, kFamilyBlues, kFamilyOtherBlues]
-kTopAlignZonesKeys = [kBlueValues, kFamilyBlues]
-kMaxTopZonesSize = 14 # 7 zones
-kBotAlignZonesKeys = [kOtherBlues, kFamilyOtherBlues]
-kMaxBotZonesSize = 10 # 5 zones
-kStdStemsKeys = [kStdHW, kStdVW]
-kMaxStdStemsSize = 1
-kStemSnapKeys = [kStemSnapH, kStemSnapV]
-kMaxStemSnapSize = 12 # including StdStem
+kTopAlignZonesKeys  = [kBlueValues, kFamilyBlues]
+kMaxTopZonesSize    = 14 # 7 zones
+kBotAlignZonesKeys  = [kOtherBlues, kFamilyOtherBlues]
+kMaxBotZonesSize    = 10 # 5 zones
+kStdStemsKeys       = [kStdHW, kStdVW]
+kMaxStdStemsSize    = 1
+kStemSnapKeys       = [kStemSnapH, kStemSnapV]
+kMaxStemSnapSize    = 12 # including StdStem
 
 
 def validateArrayValues(arrayList, valuesMustBePositive):
@@ -310,6 +318,8 @@ def readInstanceFile(instancesFilePath):
 				continue
 			if key == kFontName:
 				value = field
+			if key == kMasters:
+				value = eval(field)
 			elif key in [kExtraGlyphs, kExceptionSuffixes]:
 				value = eval(field)
 			elif key in [kIsBoldKey, kIsItalicKey, kCoordsKey]:
@@ -454,6 +464,14 @@ def makeFaceFolder(root, folder):
 
 
 def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
+
+	if len(ufoMasters) == 2:
+		'Linear interpolation with 2 masters'
+		pass
+	else:
+		'Linear interpolation with intermediate masters'
+		ufoMasters = [master for master in ufoMasters if os.path.basename(master.path) in instanceInfo.get(kMasters)]
+
 	try:
 		faceName = instanceInfo[kFontName].split('-')[1]
 	except IndexError:
@@ -827,11 +845,6 @@ def run():
 			print 'ERROR:  The %s value for the instance named %s in the %s file is not compatible with the number of axis in the MM source font.' % (kCoordsKey, instanceDict[kFontName], kInstancesDataFileName)
 			return
 
-	# XXX Only 1-axis MM space (two masters) is supported for now
-	if len(fontPathsList) > 2:
-		print >> sys.stderr, "ERROR: This script currently only supports 2 masters."
-		return
-	
 	# Get the path to the output folder
 	try:
 		outputDirPath = options.outputPath
@@ -844,8 +857,8 @@ def run():
 	t1 = time.time()
 
 	print "Reading %d UFO files..." % len(fontPathsList)
-	ufoMasters = [OpenFont(ufoPath) for ufoPath in fontPathsList]
-	
+	ufoMasters = [OpenFont(ufoPath) for ufoPath in fontPathsList]	
+
 	totalInstances = len(instancesList)
 	print "Generating %d instances..." % totalInstances
 	for i in range(totalInstances):
