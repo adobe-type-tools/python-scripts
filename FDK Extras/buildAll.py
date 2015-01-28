@@ -73,7 +73,7 @@ def doTask(fonts):
 
 		print '*******************************'
 		print 'Building %s...(%d/%d)' % (styleName, i, totalFonts)
-		cmd = 'makeotf -f "%s" -r' % fontFileName
+		cmd = 'makeotf -f "%s" -gs -r' % fontFileName  # -gs option: only the glyphs listed in the GOADB file will be included in OTF
 # 		cmd = 'makeotf -f "%s" -addn -r' % fontFileName  # adds marking notdef glyph
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
