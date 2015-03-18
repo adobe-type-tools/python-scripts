@@ -13,7 +13,7 @@ trimCasingTags = True       # TRUE: Trims casing tags so that all marks can be a
 
 libraryNotFound = False
 
-import os, sys, re, copy, math, time
+import sys, os, time
 try:
 	from defcon import Font
 except:
@@ -28,22 +28,37 @@ except:
 if libraryNotFound:
 	sys.exit()
 
+fontsList = []
 
-def generateMarkFiles(font):
+def getFontPaths(path, startpath):
+#	print "Searching in path...", path
+	files = os.listdir(path)
+	for file in files:
+		if file[-4:].lower() in [".ufo"]:
+			fontsList.append(os.path.join(path, file))	#[len(startpath)+1:])
+		else:
+			if os.path.isdir(os.path.join(path, file)):
+				getFontPaths(os.path.join(path, file), startpath)
 
-	folderPath, fontFileName = os.path.split(font)  
-	# path to the folder where the font is contained and the font's file name
-	os.chdir(folderPath)
 
-	ufoFont = Font(fontFileName)
-	ufoBaseName = os.path.splitext(fontFileName)[0]
-#	markFileName = 'mark_%s.fea' % ufoBaseName
-	styleName = ufoFont.info.styleName
+def doTask(fonts):
+	totalFonts = len(fonts)
+	print "%d fonts found\n" % totalFonts
+	i = 0
 
-	print '*******************************'
-	print 'Exporting mark files for %s...' % (styleName)
-	
-	WriteFeaturesMarkFDK.MarkDataClass(ufoFont, folderPath, trimCasingTags, genMkmkFeature, writeClassesFile, indianScriptsFormat)
+	for font in fonts:
+		i += 1
+		folderPath, fontFileName = os.path.split(font)  # path to the folder where the font is contained and the font's file name
+		styleName = os.path.basename(folderPath) # name of the folder where the font is contained
+
+		# Change current directory to the folder where the font is contained
+		os.chdir(folderPath)
+
+		print '*******************************'
+		print 'Exporting mark files for %s...(%d/%d)' % (styleName, i, totalFonts)
+		
+		ufoFont = Font(fontFileName)
+		WriteFeaturesMarkFDK.MarkDataClass(ufoFont, folderPath, trimCasingTags, genMkmkFeature, writeClassesFile, indianScriptsFormat)
 
 
 def run():
@@ -65,14 +80,10 @@ def run():
 
 	t1 = time.time()
 
-	fontPath = os.path.abspath(sys.argv[-1])
-
-	print fontPath
-	fontsList = []
-
-	if os.path.exists(fontPath) and fontPath.lower().endswith('.ufo'):
-		generateMarkFiles(fontPath)
-
+	getFontPaths(baseFolderPath, baseFolderPath)
+		
+	if len(fontsList):
+		doTask(fontsList)
 	else:
 		print "No fonts found"
 		return
