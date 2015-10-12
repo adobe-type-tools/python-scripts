@@ -6,7 +6,7 @@
 
 minKern = 3             # inclusive; this means that pairs which EQUAL this ABSOLUTE value will NOT be ignored/trimmed. Anything below WILL.
 writeTrimmed = False    # If 'False', trimmed pairs will not be processed and, therefore, will not be written to the kerning feature file.
-writeSubtables = False  # Sometimes the kerning feature file needs to have explicit subtable breaks, otherwise the OTF won't compile due to a subtable overflow.
+writeSubtables = True   # Sometimes the kerning feature file needs to have explicit subtable breaks, otherwise the OTF won't compile due to a subtable overflow.
 
 ###################################################
 
