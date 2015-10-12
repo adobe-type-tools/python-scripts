@@ -56,7 +56,7 @@ def doTask(fonts):
 
 		print '*******************************'
 		print 'Exporting mark files for %s...(%d/%d)' % (styleName, i, totalFonts)
-		
+
 		ufoFont = Font(fontFileName)
 		WriteFeaturesMarkFDK.MarkDataClass(ufoFont, folderPath, trimCasingTags, genMkmkFeature, writeClassesFile, indianScriptsFormat)
 
@@ -81,7 +81,7 @@ def run():
 	t1 = time.time()
 
 	getFontPaths(baseFolderPath, baseFolderPath)
-		
+
 	if len(fontsList):
 		doTask(fontsList)
 	else:
@@ -90,7 +90,7 @@ def run():
 
 	t2 = time.time()
 	elapsedSeconds = t2-t1
-	
+
 	if (elapsedSeconds/60) < 1:
 		print 'Completed in %.1f seconds.' % elapsedSeconds
 	else:
