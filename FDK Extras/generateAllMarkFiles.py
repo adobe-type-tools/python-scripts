@@ -48,7 +48,7 @@ def doTask(fonts):
 
 	for font in fonts:
 		i += 1
-		folderPath, fontFileName = os.path.split(font)  # path to the folder where the font is contained and the font's file name
+		folderPath, fontFileName = os.path.split(os.path.realpath(font))  # path to the folder where the font is contained and the font's file name
 		styleName = os.path.basename(folderPath) # name of the folder where the font is contained
 
 		# Change current directory to the folder where the font is contained
