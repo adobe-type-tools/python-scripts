@@ -1,17 +1,28 @@
 #!/usr/bin/python
 
-###################################################
-### THE VALUES BELOW CAN BE EDITED AS NEEDED ######
-###################################################
+import os
+import sys
+import time
 
-minKern = 3             # inclusive; this means that pairs which EQUAL this ABSOLUTE value will NOT be ignored/trimmed. Anything below WILL.
-writeTrimmed = False    # If 'False', trimmed pairs will not be processed and, therefore, will not be written to the kerning feature file.
-writeSubtables = False  # Sometimes the kerning feature file needs to have explicit subtable breaks, otherwise the OTF won't compile due to a subtable overflow.
+############################################
+# THE VALUES BELOW CAN BE EDITED AS NEEDED #
+############################################
+
+minKern = 3
+# This value is inclusive; this means that pairs which EQUAL this ABSOLUTE
+# value will NOT be ignored/trimmed. Any kerning pair that falls in the range
+# from 0-minKern to 0+minKern will be ignored.
+writeTrimmed = False
+# If 'False', trimmed pairs will not be processed and therefore will not be
+# written to the kerning feature file.
+# If 'True', trimmed pairs will be written, but commented out.
+writeSubtables = False
+# Sometimes the kerning feature file needs to have explicit subtable breaks,
+# otherwise the OTF won't compile due to a subtable overflow.
 
 
 libraryNotFound = False
 
-import sys, os, time
 try:
 	from defcon import Font
 except:
@@ -29,7 +40,7 @@ if libraryNotFound:
 
 def generateKernFile(font):
 
-	folderPath, fontFileName = os.path.split(font)  
+	folderPath, fontFileName = os.path.split(font)
 	# path to the folder where the font is contained and the font's file name
 	os.chdir(folderPath)
 
@@ -40,8 +51,11 @@ def generateKernFile(font):
 
 	print '*******************************'
 	print 'Kerning for %s...' % (styleName)
-	
-	WriteFeaturesKernFDK.KernDataClass(ufoFont, folderPath, minKern, writeTrimmed, writeSubtables, kernFileName)
+
+	WriteFeaturesKernFDK.KernDataClass(
+		ufoFont, folderPath, minKern,
+		writeTrimmed, writeSubtables, kernFileName
+	)
 
 
 def run():
@@ -64,9 +78,7 @@ def run():
 	t1 = time.time()
 
 	fontPath = os.path.abspath(sys.argv[-1])
-
 	print fontPath
-	fontsList = []
 
 	if os.path.exists(fontPath) and fontPath.lower().endswith('.ufo'):
 		generateKernFile(fontPath)
@@ -77,7 +89,7 @@ def run():
 
 	t2 = time.time()
 	elapsedSeconds = t2-t1
-	
+
 	if (elapsedSeconds/60) < 1:
 		print 'Completed in %.1f seconds.' % elapsedSeconds
 	else:

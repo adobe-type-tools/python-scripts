@@ -1,33 +1,33 @@
 #!/usr/bin/python
 
-###################################################
-### THE VALUES BELOW CAN BE EDITED AS NEEDED ######
-###################################################
+############################################
+# THE VALUES BELOW CAN BE EDITED AS NEEDED #
+############################################
 
 kFontInstanceFileName = "font.ufo"
 kInstancesDataFileName = "instances"
 
 ###################################################
 
-__copyright__ = __license__ =  """
-Copyright (c) 2014 Adobe Systems Incorporated. All rights reserved.
- 
+__copyright__ = __license__ = """
+Copyright (c) 2013-2017 Adobe Systems Incorporated. All rights reserved.
+
 Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"), 
-to deal in the Software without restriction, including without limitation 
-the rights to use, copy, modify, merge, publish, distribute, sublicense, 
-and/or sell copies of the Software, and to permit persons to whom the 
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
 Software is furnished to do so, subject to the following conditions:
- 
+
 The above copyright notice and this permission notice shall be included in
 all copies or substantial portions of the Software.
- 
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 
@@ -67,36 +67,39 @@ MARK FEATURE OPTIONS
 
 """
 
-__doc__ = """
-This script will generate a set of UFO instances from a series of master design fonts.
-The master designs must be compatible. For each instance, in addition to creating a UFO 
-font file, the script can also write 'kern', 'mark' and 'mkmk' feature files. These 
-files will be saved in the same folder as the UFO font instance.
+__doc__ = """This script will generate a set of UFO instances from a
+series of master design fonts. The master designs must be compatible.
+For each instance, in addition to creating a UFO font file, the script
+can also write 'kern', 'mark' and 'mkmk' feature files. These files
+will be saved in the same folder as the UFO font instance.
 
-For information about how the "kern.fea" file is created, please read the documentation 
-in the WriteFeaturesKernFDK.py module.
+For information about how the "kern.fea" file is created, please read
+the documentation in the WriteFeaturesKernFDK.py module.
 
-For information about how the "mark/mkmk.fea" files are created, please read the 
-documentation in the WriteFeaturesMarkFDK.py module.
+For information about how the "mark/mkmk.fea" files are created,
+please read the documentation in the WriteFeaturesMarkFDK.py module.
 
-The UFO font files are written to a sub-directory path <selected_folder>/<face_name>, 
-where the face name is derived by taking the part of the font's PostScript name after the 
-hyphen, or "Regular" if there is no hyphen (e.g. if the font's PostScript name is 
+The UFO font files are written to a sub-directory path
+<selected_folder>/<face_name>, where the face name is derived by
+taking the part of the font's PostScript name after the hyphen, or
+"Regular" if there is no hyphen (e.g. if the font's PostScript name is
 MyFont-BoldItalic, the folder will be named "BoldItalic")
 
-This script depends on info provided by an external simple text file named "instances".
-The data supplied in this file, is used for specifying the instance's values, and for 
-providing the font names used in the UFO's fontinfo.plist file. The "instances" file 
-must be located in the same folder as the UFO master files. Each line specifies one 
-instance, as a record of tab-delimited fields. The first 6 fields are always, in order:
+This script depends on info provided by an external simple text file
+named "instances". The data supplied in this file, is used for
+specifying the instance's values, and for providing the font names
+used in the UFO's fontinfo.plist file. The "instances" file must be
+located in the same folder as the UFO master files. Each line
+specifies one instance, as a record of tab-delimited fields. The first
+6 fields are always, in order:
 
-  FamilyName : This is the Preferred Family name.
-  FontName   : This is the PostScript name.
-  FullName   : This is the Preferred Full name.
-  Weight     : This is the Weight name.
-  Coords     : This is a single value, or a sequence of comma-separated integer values.
+  FamilyName : the Preferred Family name.
+  FontName   : the PostScript name.
+  FullName   : the Preferred Full name.
+  Weight     : the Weight name.
+  Coords     : a single value, or a sequence of comma-separated integer values.
 			   Each integer value corresponds to an axis.
-  IsBold     : This must be either 1 (True) or 0 (False). This will be translated into
+  IsBold     : must be either 1 (True) or 0 (False). This will be translated into
 			   Postscript FontDict ForceBold field. The recommended value is 0 for all the
 			   instances.
   Masters    : Optional. This is for using intermediate masters in a linear interpolation,
@@ -107,7 +110,7 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
   Examples:
 	# Two masters, one axis
 	MyFontStd<tab>MyFontStd-Bold<tab>MyFont Std Bold<tab>Bold<tab>650<tab>1
-	MyFontStd<tab>MyFontStd-Regular<tab>MyFont Std Regular<tab>Regular<tab>350<tab>0	
+	MyFontStd<tab>MyFontStd-Regular<tab>MyFont Std Regular<tab>Regular<tab>350<tab>0
 
 	# Three masters, one axis (interpolation with intermediate master)
 	MyFontPro<tab>MyFontPro-Light<tab>MyFontPro Light<tab>Light <tab>(408)<tab>0<tab>("MyFontPro_0.ufo", "MyFontPro_1.ufo")
@@ -122,7 +125,7 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
 [NOT IMPLEMENTED]    However, if any additional fields are used, then the file must contain a line
 [NOT IMPLEMENTED]    starting with "#KEYS:", and continuing with tab-delimited field names. Two of
 [NOT IMPLEMENTED]    the additional fields allowed are:
-[NOT IMPLEMENTED]    
+[NOT IMPLEMENTED]
 [NOT IMPLEMENTED]      ExceptionSuffixes : A list of suffixes, used to identify MM exception glyphs. An
 [NOT IMPLEMENTED]      MM exception glyph is one which is designed for use in only one instance, and is
 [NOT IMPLEMENTED]      used by replacing every occurence of the glyphs that match the MM exception
@@ -133,23 +136,23 @@ instance, as a record of tab-delimited fields. The first 6 fields are always, in
 [NOT IMPLEMENTED]      there is an MM exception glyph named "a-black", then the glyph "a" will be
 [NOT IMPLEMENTED]      replaced by the glyph "a-black", and all composite glyphs that use "a" will be
 [NOT IMPLEMENTED]      updated to use the contours from "a-black" instead.
-[NOT IMPLEMENTED]      
+[NOT IMPLEMENTED]
 [NOT IMPLEMENTED]      ExtraGlyphs : A list of working glyph names, to be omitted from the instances.
 [NOT IMPLEMENTED]      This may be a complete glyph name, or a wild-card pattern. A pattern may take two
 [NOT IMPLEMENTED]      forms: "*<suffix>", which will match any glyph ending with that suffix, or a
 [NOT IMPLEMENTED]      regular expression which must match entire glyph names. The pattern must begin
 [NOT IMPLEMENTED]      with "^" and end with "$". You do not need to include glyph names which match
 [NOT IMPLEMENTED]      an MM Exception glyph suffix: such glyphs will not be written to any instance.
-[NOT IMPLEMENTED]    
+[NOT IMPLEMENTED]
 [NOT IMPLEMENTED]      Example:
 [NOT IMPLEMENTED]    	#KEYS:FamilyName<tab>FontName<tab>FullName<tab>Weight<tab>Coords<tab>IsBold<tab>ExceptionSuffixes<tab>ExtraGlyphs
 [NOT IMPLEMENTED]    	MyFontPro<tab>MyFontPro-ExtraLight<tab>MyFont Pro ExtraLight<tab>ExtraLight<tab>0<tab>0<tab><tab>["*-black","*-aux"]
 [NOT IMPLEMENTED]    	MyFontPro<tab>MyFontPro-Black<tab>MyFont Pro Black<tab>Black<tab>1000<tab>0<tab>["-black"]<tab>["*-aux"]
-[NOT IMPLEMENTED]    
-[NOT IMPLEMENTED]    
+[NOT IMPLEMENTED]
+[NOT IMPLEMENTED]
 [NOT IMPLEMENTED]    The other additional field names are assumed to be the names for Postscript FontDict
 [NOT IMPLEMENTED]    keys, such as: BlueScale, BlueShift, BlueFuzz, BlueValues, OtherBlues, FamilyBlues, FamilyOtherBlues, StdHW, StdVW, StemSnapH, StemSnapV
-[NOT IMPLEMENTED]    
+[NOT IMPLEMENTED]
 [NOT IMPLEMENTED]      Example:
 [NOT IMPLEMENTED]    	#KEYS:FamilyName<tab>FontName<tab>FullName<tab>Weight<tab>Coords<tab>IsBold<tab>BlueFuzz<tab>BlueScale<tab>BlueValues
 [NOT IMPLEMENTED]    	MyFontPro<tab><MyFontPro-Regular<tab>MyFont Pro Regular<tab>Regular<tab>160,451<tab>0<tab>0<tab>0.0479583<tab>[-18 0 395 410 439 453 596 608 615 633 672 678]
@@ -256,19 +259,19 @@ def readInstanceFile(instancesFilePath):
 	f = open(instancesFilePath, "rt")
 	data = f.read()
 	f.close()
-	
+
 	lines = data.splitlines()
-	
+
 	i = 0
 	parseError = 0
 	keyDict = copy.copy(kFixedFieldKeys)
 	numKeys = kNumFixedFields
 	numLines = len(lines)
 	instancesList = []
-	
+
 	for i in range(numLines):
 		line = lines[i]
-		
+
 		# Skip over blank lines
 		line2 = line.strip()
 		if not line2:
@@ -304,9 +307,9 @@ def readInstanceFile(instancesFilePath):
 			print >> sys.stderr, "ERROR: In line %s, the number of fields %s does not match the number of key names %s (FamilyName, FontName, FullName, Weight, Coords, IsBold)." % (i+1, numFields, numKeys)
 			parseError = 1
 			continue
-		
+
 		instanceDict= {}
-		#Build a dict from key to value. Some kinds of values needs special processing.
+		# Build a dict from key to value. Some kinds of values needs special processing.
 		for k in range(numFields):
 			key = keyDict[k]
 			field = fields[k]
@@ -325,7 +328,7 @@ def readInstanceFile(instancesFilePath):
 			elif key in [kIsBoldKey, kIsItalicKey, kCoordsKey]:
 				try:
 					value = eval(field) # this works for all three fields.
-					
+
 					if key == kIsBoldKey: # need to convert to Type 1 field key.
 						instanceDict[key] = value
 						# add kForceBold key.
@@ -349,13 +352,13 @@ def readInstanceFile(instancesFilePath):
 
 			elif field[0] in ["[","{"]: # it is a Type 1 array value. Turn it into a list and verify that there's an even number of values for the alignment zones
 				value = field[1:-1].split() # Remove the begin and end brackets/braces, and make a list
-				
+
 				if key in kAlignmentZonesKeys:
 					if len(value) % 2 != 0:
 						print >> sys.stderr, "ERROR: In line %s, the %s field does not have an even number of values." % (i+1, key)
 						parseError = 1
 						continue
-				
+
 				if key in kTopAlignZonesKeys: # The Type 1 spec only allows 7 top zones (7 pairs of values)
 					if len(value) > kMaxTopZonesSize:
 						print >> sys.stderr, "ERROR: In line %s, the %s field has more than %d values." % (i+1, key, kMaxTopZonesSize)
@@ -373,7 +376,7 @@ def readInstanceFile(instancesFilePath):
 					value.sort()
 					if currentArray != value:
 						print "WARNING: In line %s, the values in the %s field were sorted in ascending order." % (i+1, key)
-				
+
 				if key in kBotAlignZonesKeys: # The Type 1 spec only allows 5 top zones (5 pairs of values)
 					if len(value) > kMaxBotZonesSize:
 						print >> sys.stderr, "ERROR: In line %s, the %s field has more than %d values." % (i+1, key, kMaxBotZonesSize)
@@ -391,7 +394,7 @@ def readInstanceFile(instancesFilePath):
 					value.sort()
 					if currentArray != value:
 						print "WARNING: In line %s, the values in the %s field were sorted in ascending order." % (i+1, key)
-				
+
 				if key in kStdStemsKeys:
 					if len(value) > kMaxStdStemsSize:
 						print >> sys.stderr, "ERROR: In line %s, the %s field can only have %d value." % (i+1, key, kMaxStdStemsSize)
@@ -405,7 +408,7 @@ def readInstanceFile(instancesFilePath):
 							print >> sys.stderr, "ERROR: In line %s, the %s field has an invalid value." % (i+1, key)
 							parseError = 1
 							continue
-				
+
 				if key in kStemSnapKeys: # The Type 1 spec only allows 12 stem widths, including 1 standard stem
 					if len(value) > kMaxStemSnapSize:
 						print >> sys.stderr, "ERROR: In line %s, the %s field has more than %d values." % (i+1, key, kMaxStemSnapSize)
@@ -429,9 +432,9 @@ def readInstanceFile(instancesFilePath):
 					value = field #it is a Type 1 number. Pass as is, as a string.
 				else:
 					value = field
-			
+
 			instanceDict[key] = value
-				
+
 		if (kStdHW in instanceDict and kStemSnapH not in instanceDict) or (kStdHW not in instanceDict and kStemSnapH in instanceDict):
 			print >> sys.stderr, "ERROR: In line %s, either the %s value or the %s values are missing or were invalid." % (i+1, kStdHW, kStemSnapH)
 			parseError = 1
@@ -447,14 +450,14 @@ def readInstanceFile(instancesFilePath):
 			if instanceDict[kStemSnapV][0] != instanceDict[kStdVW][0]:
 				print >> sys.stderr, "ERROR: In line %s, the first value in %s must be the same as the %s value." % (i+1, kStemSnapV, kStdVW)
 				parseError = 1
-		
+
 		instancesList.append(instanceDict)
-		
+
 	if parseError or len(instancesList) == 0:
 		raise
-		
+
 	return instancesList
-	
+
 
 def makeFaceFolder(root, folder):
 	facePath = os.path.join(root, folder)
@@ -479,19 +482,19 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 
 	print
 	print "%s (%d/%d)" % (faceName, counter[0], counter[1])
-	
+
 	# Calculate the value of the interpolation factor
 	# XXX It's currently assuming a 0-1000 axis
 	interpolationFactor = instanceInfo[kCoordsKey][0]/1000.000
 
 	glyphOrder = ufoMasters[0].lib["public.glyphOrder"]
-	
+
 	# aGlyph.isCompatible(otherGlyph, report=True)
-# 	for glyphName in glyphOrder:
-# 		ufoMasters[0][glyphName].isCompatible(ufoMasters[1][glyphName], True)
-	
+	# for glyphName in glyphOrder:
+	# 	ufoMasters[0][glyphName].isCompatible(ufoMasters[1][glyphName], True)
+
 	ufoInstance = NewFont()
-	
+
 	# Interpolate the masters
 	# Documentation: http://www.robofab.org/howto/interpolate.html
 	# aFont.interpolate(factor, minFont, maxFont, suppressError=True, analyzeOnly=False)
@@ -502,7 +505,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	#	- descender
 	#	- glyph widths for the whole font
 	ufoInstance.interpolate(interpolationFactor, ufoMasters[0], ufoMasters[1])
-	
+
 	# Round all the point coordinates to whole integer numbers
 	ufoInstance.round()
 
@@ -512,7 +515,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	if len(ufoMasters[0].kerning):
 		ufoInstance.kerning.interpolate(ufoMasters[0].kerning, ufoMasters[1].kerning, interpolationFactor)
 		ufoInstance.kerning.round(1) # convert the interpolated values to integers
-	
+
 	for glyphName in glyphOrder:
 		ufoInstance[glyphName].unicode = ufoMasters[0][glyphName].unicode
 
@@ -527,17 +530,17 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	ufoInstance.info.postscriptFullName = instanceInfo[kFullName]
 	ufoInstance.info.postscriptWeightName = instanceInfo[kWeight]
 	ufoInstance.info.postscriptForceBold = True if instanceInfo[kIsBoldKey] else False
-	
+
 	ufoInstance.lib = ufoMasters[0].lib
 	ufoInstance.groups = ufoMasters[0].groups
-	
+
 	ufoInstance.info.copyright = ufoMasters[0].info.copyright
 	ufoInstance.info.trademark = ufoMasters[0].info.trademark
 	ufoInstance.info.unitsPerEm = ufoMasters[0].info.unitsPerEm
 	ufoInstance.info.versionMajor = ufoMasters[0].info.versionMajor
 	ufoInstance.info.versionMinor = ufoMasters[0].info.versionMinor
 	ufoInstance.info.postscriptIsFixedPitch = ufoMasters[0].info.postscriptIsFixedPitch
-	
+
 	# ascender
 	if ufoMasters[0].info.ascender and ufoMasters[1].info.ascender:
 		ufoInstance.info.ascender = int(round(objectsBase._interpolate(ufoMasters[0].info.ascender, ufoMasters[1].info.ascender, interpolationFactor)))
@@ -617,7 +620,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		for i in range(len(ufoMasters[0].info.postscriptStemSnapV)):
 			tempArray.append(int(round(objectsBase._interpolate(ufoMasters[0].info.postscriptStemSnapV[i], ufoMasters[1].info.postscriptStemSnapV[i], interpolationFactor))))
 		ufoInstance.info.postscriptStemSnapV = tempArray
-	
+
 
 	faceFolder = makeFaceFolder(outputDirPath, faceName)
 	ufoPath = os.path.join(faceFolder, kFontInstanceFileName)
@@ -625,13 +628,13 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 	# Save UFO instance
 	if not options.noUFOs:
 		print '\tSaving %s file...' % kFontInstanceFileName
-	
+
 		# Delete the old UFO file, if it exists
 		while os.path.exists(ufoPath):
 			shutil.rmtree(ufoPath)
-	
+
 		ufoInstance.save(ufoPath)
-	
+
 	# Generate 'kern' feature
 	if options.genKernFeature:
 		print "\tGenerating 'kern' feature..."
@@ -644,8 +647,8 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 		else:
 			print "\tGenerating 'mark' feature..."
 		WriteFeaturesMarkFDK.MarkDataClass(ufoInstance, faceFolder, options.trimCasingTags, options.genMkmkFeature, options.writeClassesFile, options.indianScriptsFormat)
-	
-	
+
+
 	# Decompose and remove overlaps (using checkoutlines)
 	if options.flatten:
 		print '\tFlattening the glyphs...'
@@ -661,7 +664,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 				print popenout
 		if popenerr:
 			print popenerr
-	
+
 	# Autohint
 	if options.autohint:
 		print '\tHinting the font...'
@@ -673,7 +676,7 @@ def makeInstance(counter, ufoMasters, instanceInfo, outputDirPath, options):
 				print popenout
 		if popenerr:
 			print popenerr
-	
+
 
 class Options:
 	def __init__(self):
@@ -690,7 +693,7 @@ class Options:
 		self.trimCasingTags = False
 		self.autohint = False
 		self.flatten = False
-		
+
 
 def getOptions(baseFolderPath):
 	options = Options()
@@ -763,7 +766,7 @@ def getOptions(baseFolderPath):
 		elif arg[0] == "-":
 			print >> sys.stderr, "OPTION ERROR: Unknown option <%s>." %  arg
 			raise
-		i  += 1
+		i += 1
 
 	# To do the 'mkmk' feature, the 'mark' feature must be done as well, therefore enable it
 	if options.genMkmkFeature and not options.genMarkFeature:
@@ -805,10 +808,10 @@ def run():
 		options = getOptions(baseFolderPath)
 	except:
 		return
-	
+
 	# Get paths to fonts and instances file
 	fontPathsList, instancesFilePath = getFontPaths(baseFolderPath)
-	
+
 	if not len(fontPathsList):
 		print >> sys.stderr, "ERROR: No UFO fonts were found in the path below\n\t%s" % baseFolderPath
 		return
@@ -829,13 +832,13 @@ def run():
 	for ufoPath in fontPathsList:
 		fileNameNoExtension, fileExtension = os.path.splitext(ufoPath)
 		masterNumber = fileNameNoExtension.split('_')[-1]
-		
+
 		if masterNumber.isdigit():
 			masterIndexes.append(int(masterNumber))
 	if masterIndexes != range(len(fontPathsList)):
 		print >> sys.stderr, "ERROR: The UFO master files are not named properly"
 		return
-	
+
 	# Check the number of UFOs against the number of axes in the instances file
 	axisNum = int(math.log(len(masterIndexes), 2))
 	for i in range(len(instancesList)):
@@ -857,7 +860,7 @@ def run():
 	t1 = time.time()
 
 	print "Reading %d UFO files..." % len(fontPathsList)
-	ufoMasters = [OpenFont(ufoPath) for ufoPath in fontPathsList]	
+	ufoMasters = [OpenFont(ufoPath) for ufoPath in fontPathsList]
 
 	totalInstances = len(instancesList)
 	print "Generating %d instances..." % totalInstances
@@ -866,7 +869,7 @@ def run():
 
 	t2 = time.time()
 	elapsedSeconds = t2-t1
-	
+
 	if (elapsedSeconds/60) < 1:
 		print 'Completed in %.1f seconds.' % elapsedSeconds
 	else:
