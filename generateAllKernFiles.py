@@ -1,16 +1,29 @@
 #!/usr/bin/python
 
-###################################################
-### THE VALUES BELOW CAN BE EDITED AS NEEDED ######
-###################################################
+import os
+import sys
+import time
 
-minKern = 3             # inclusive; this means that pairs which EQUAL this ABSOLUTE value will NOT be ignored/trimmed. Anything below WILL.
-writeTrimmed = False    # If 'False', trimmed pairs will not be processed and, therefore, will not be written to the kerning feature file.
-writeSubtables = True   # Sometimes the kerning feature file needs to have explicit subtable breaks, otherwise the OTF won't compile due to a subtable overflow.
+############################################
+# THE VALUES BELOW CAN BE EDITED AS NEEDED #
+############################################
 
-###################################################
+minKern = 3
+# This value is inclusive; this means that pairs which EQUAL this ABSOLUTE
+# value will NOT be ignored/trimmed. Anything kerning pair that falls below
+# will be ignored.
+writeTrimmed = False
+# If 'False', trimmed pairs will not be processed and therefore will not be
+# written to the kerning feature file.
+# If 'True', trimmed pairs will be written, but commented out.
+writeSubtables = False
+# Sometimes the kerning feature file needs to have explicit subtable breaks,
+# otherwise the OTF won't compile due to a subtable overflow.
 
-__copyright__ = __license__ =  """
+
+############################################
+
+__copyright__ = __license__ = """
 Copyright (c) 2014 Adobe Systems Incorporated. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a
@@ -29,21 +42,19 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-"""
+DEALINGS IN THE SOFTWARE."""
 
-__doc__ = """
-This script takes a path to a folder as input, finds all the UFOs inside that folder
-and its subdirectories, and outputs each font's kerning in feature file syntax.
-If a path is not provided, the script uses the current path as the top-most directory.
-The name of the resulting kerning FEA file is managed by the WriteFeaturesKernFDK module.
-"""
+__doc__ = """ This script takes a path to a folder as input, finds all
+the UFOs inside that folder and its subdirectories, and outputs each
+font's kerning in feature file syntax. If a path is not provided, the
+script uses the current path as the top-most directory. The name of
+the resulting kerning FEA file is managed by the WriteFeaturesKernFDK
+module. """
 
 # ----------------------------------------------
 
 libraryNotFound = False
 
-import sys, os, time
 try:
 	from defcon import Font
 except:
@@ -60,44 +71,51 @@ if libraryNotFound:
 
 fontsList = []
 
+
 def getFontPaths(path, startpath):
-#	print "Searching in path...", path
 	files = os.listdir(path)
 	for file in files:
 		if file[-4:].lower() in [".ufo"]:
-			fontsList.append(os.path.join(path, file))	#[len(startpath)+1:])
+			fontsList.append(os.path.join(path, file))
 		else:
 			if os.path.isdir(os.path.join(path, file)):
 				getFontPaths(os.path.join(path, file), startpath)
 
 
-def doTask(fonts):
+def doTask(fonts, startpath):
 	totalFonts = len(fonts)
 	print "%d fonts found\n" % totalFonts
 	i = 0
 
 	for font in fonts:
 		i += 1
-		folderPath, fontFileName = os.path.split(os.path.realpath(font))  # path to the folder where the font is contained and the font's file name
-		styleName = os.path.basename(folderPath) # name of the folder where the font is contained
+		folderPath, fontFileName = os.path.split(font)
+		# path to the folder where the font is contained and the font's file name
+		styleName = os.path.basename(folderPath)
+		folderPath = os.path.abspath(folderPath)
+		# name of the folder where the font is contained
 
 		# Change current directory to the folder where the font is contained
 		os.chdir(folderPath)
 
-		print '*******************************'
-		print 'Kerning for %s...(%d/%d)' % (styleName, i, totalFonts)
+		exportMessage = 'Exporting kern files for %s...(%d/%d)' % (
+			styleName, i, totalFonts)
+		print '*' * len(exportMessage)
+		print exportMessage
 
 		ufoFont = Font(fontFileName)
-		WriteFeaturesKernFDK.KernDataClass(ufoFont, folderPath, minKern, writeTrimmed, writeSubtables)
+		WriteFeaturesKernFDK.KernDataClass(
+			ufoFont, folderPath, minKern,
+			writeTrimmed, writeSubtables
+		)
+
+		os.chdir(startpath)
 
 
 def run():
 	# if a path is provided
 	if len(sys.argv[1:]):
-		baseFolderPath = sys.argv[1]
-
-		if baseFolderPath[-1] == '/':  # remove last slash if present
-			baseFolderPath = baseFolderPath[:-1]
+		baseFolderPath = os.path.normpath(sys.argv[1])
 
 		# make sure the path is valid
 		if not os.path.isdir(baseFolderPath):
@@ -109,11 +127,10 @@ def run():
 		baseFolderPath = os.getcwd()
 
 	t1 = time.time()
-
 	getFontPaths(baseFolderPath, baseFolderPath)
-
+	startpath = os.path.abspath(os.path.curdir)
 	if len(fontsList):
-		doTask(fontsList)
+		doTask(fontsList, startpath)
 	else:
 		print "No fonts found"
 		return
