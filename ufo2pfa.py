@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import os
+import sys
+import time
+from subprocess import Popen, PIPE
 
-__copyright__ = __license__ =  """
+__copyright__ = __license__ = """
 Copyright 2013-2016 Adobe Systems Incorporated. All rights reserved.
 
 Permission is hereby granted, free of charge, to any person obtaining a
@@ -38,18 +42,17 @@ v1.0 - Feb 23 2013 - Initial release
 v2.0 - Feb 03 2016 - Modernized and removed defcon and ufo2fdk dependencies.
 """
 
-import sys, os, time
-from subprocess import Popen, PIPE
-
-
-fontsList = []
-
 
 def getFontPaths(path):
-	for r,folders,files in os.walk(path):
+	fontsList = []
+	for r, folders, files in os.walk(path):
 		for folder in folders:
-			if folder[-4:].lower() == ".ufo":
+			fileName, extension = os.path.splitext(folder)
+			extension = extension.lower()
+			if extension == ".ufo":
 				fontsList.append(os.path.join(r, folder))
+
+	return fontsList
 
 
 def doTask(fonts):
@@ -58,8 +61,8 @@ def doTask(fonts):
 	i = 1
 
 	for font in fonts:
-		folderPath, fontFileName = os.path.split(font)  # path to the folder where the font is contained and the font's file name
-		styleName = os.path.basename(folderPath) # name of the folder where the font is contained
+		folderPath, fontFileName = os.path.split(font)
+		styleName = os.path.basename(folderPath)
 
 		# Change current directory to the folder where the font is contained
 		os.chdir(folderPath)
@@ -86,10 +89,7 @@ def doTask(fonts):
 def run():
 	# if a path is provided
 	if len(sys.argv[1:]):
-		baseFolderPath = sys.argv[1]
-
-		if baseFolderPath[-1] == '/':  # remove last slash if present
-			baseFolderPath = baseFolderPath[:-1]
+		baseFolderPath = os.path.normpath(sys.argv[1])
 
 		# make sure the path is valid
 		if not os.path.isdir(baseFolderPath):
@@ -101,8 +101,7 @@ def run():
 		baseFolderPath = os.getcwd()
 
 	t1 = time.time()
-
-	getFontPaths(os.path.abspath(baseFolderPath))
+	fontsList = getFontPaths(os.path.abspath(baseFolderPath))
 
 	if len(fontsList):
 		doTask(fontsList)
