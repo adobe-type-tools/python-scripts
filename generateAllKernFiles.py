@@ -42,9 +42,9 @@ except:
 	print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
 	libraryNotFound = True
 try:
-	import WriteFeaturesKernFDK
+	import kernFeatureWriter
 except:
-	print "ERROR: This script requires WriteFeaturesKernFDK.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
+	print "ERROR: This script requires kernFeatureWriter.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
 	libraryNotFound = True
 
 if libraryNotFound:
@@ -85,10 +85,7 @@ def doTask(fonts, startpath):
 		print exportMessage
 
 		ufoFont = Font(fontFileName)
-		WriteFeaturesKernFDK.KernDataClass(
-			ufoFont, folderPath, minKern,
-			writeTrimmed, writeSubtables
-		)
+		kernFeatureWriter.run(ufoFont, folderPath, minKern, writeSubtables)
 
 		os.chdir(startpath)
 
