@@ -16,7 +16,7 @@ writeTrimmed = False
 # If 'False', trimmed pairs will not be processed and therefore will not be
 # written to the kerning feature file.
 # If 'True', trimmed pairs will be written, but commented out.
-writeSubtables = False
+writeSubtables = True
 # Sometimes the kerning feature file needs to have explicit subtable breaks,
 # otherwise the OTF won't compile due to a subtable overflow.
 
