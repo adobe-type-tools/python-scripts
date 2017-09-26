@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os
 import sys
@@ -30,7 +30,7 @@ kTempPFA = "font_TEMP_.pfa"
 
 def getFontPaths(path):
 	fontsList = []
-	for r, folders, files in os.walk(path):
+	for r, folders, files in os.walk(os.path.realpath(path)):
 		fileAndFolderList = folders[:]
 		fileAndFolderList.extend(files)
 

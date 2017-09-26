@@ -30,7 +30,7 @@ kFontTXT = "font.txt"
 
 def getFontPaths(path):
 	fontsList = []
-	for r, folders, files in os.walk(path):
+	for r, folders, files in os.walk(os.path.realpath(path)):
 		fileAndFolderList = folders[:]
 		fileAndFolderList.extend(files)
 
