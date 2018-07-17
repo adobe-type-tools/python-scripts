@@ -116,7 +116,7 @@ Generate UFO instances from two or more masters, in a one- or two axis MultipleM
 Some of the scripts may require additional Python packages or depend on certain tools being installed and appropriately configured to run on the command line.
 Here is a list of the locations from which you may need to get the extra tools and packages:
 
-* [Adobe Font Development Kit for OpenType (AFDKO)](http://www.adobe.com/devnet/opentype/afdko.html)
+* [Adobe Font Development Kit for OpenType (AFDKO)](https://github.com/adobe-type-tools/afdko)
     * makeotf
     * autohint
     * tx
@@ -124,11 +124,11 @@ Here is a list of the locations from which you may need to get the extra tools a
     * detype1
     * spot
 
-* [FontTools](http://sourceforge.net/projects/fonttools/)
+* [FontTools](https://github.com/fonttools/fonttools)
 
-* [RoboFab](http://www.robofab.org/)
+* [RoboFab](https://github.com/robofab-developers/robofab)
 
-* [Type Supply Tools](http://code.typesupply.com/)
+* [Type Supply Tools](https://github.com/typesupply)
     * defcon
     * ufo2fdk
     * woffTools
