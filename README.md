@@ -104,6 +104,32 @@ Generate UFO instances from two or more masters, in a one- or two axis MultipleM
 
 ---
 
+### `BuildMMFont.py`
+Build MM font from bez files.
+
+---
+
+### `checkUFOProcessedLayer.py`
+For a UFO font, check that the glyph hashes stored when checkOutlinesUFO or autohint
+were last ran still match the source glyph hashes. If not, all outdated glyphs are
+deleted from the Adobe processed layer.
+
+---
+
+### `copyCFFCharstrings.py`
+Copies the CFF charstrings and subroutines from source to destination fonts.
+
+---
+
+### `kernCheck.py`
+Performs several (lengthy) checks on the GPOS table `kern` feature in an OpenType font.
+
+This tool will report collisions between kern pairs, or, with the option `-a`, will report any collisions between any pair of glyphs. It will also report when rules in one GPOS table kern feature mask rules in a different subtable of the same lookup.
+
+NOTE: The time needed is related to the square of the number of glyphs. This script will run in a few minutes for a font with 300 glyphs, but can take more than an hour for a font with 3000 glyphs.
+
+---
+
 
 
 ## Installation
