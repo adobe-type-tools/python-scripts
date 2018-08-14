@@ -130,6 +130,11 @@ NOTE: The time needed is related to the square of the number of glyphs. This scr
 
 ---
 
+### `makeinstances.py`
+Generates Type 1 font instances (`font.pfa`) from a multiple master Type 1 font file (`mmfont.pfa`) and an `instances` text file.
+
+---
+
 
 
 ## Installation
