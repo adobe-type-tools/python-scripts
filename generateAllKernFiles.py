@@ -1,4 +1,13 @@
-#!/usr/bin/python
+"""
+This script takes a path to a folder as input, finds all
+the UFOs inside that folder and its subdirectories, and outputs each
+font's kerning in feature file syntax. If a path is not provided, the
+script uses the current path as the top-most directory. The name of
+the resulting kerning FEA file is managed by the kernFeatureWriter
+module.
+"""
+
+from __future__ import print_function
 
 import os
 import sys
@@ -23,104 +32,96 @@ writeSubtables = True
 
 ############################################
 
-__doc__ = """
-This script takes a path to a folder as input, finds all
-the UFOs inside that folder and its subdirectories, and outputs each
-font's kerning in feature file syntax. If a path is not provided, the
-script uses the current path as the top-most directory. The name of
-the resulting kerning FEA file is managed by the WriteFeaturesKernFDK
-module.
-"""
-
-# ----------------------------------------------
-
 libraryNotFound = False
 
 try:
-	from defcon import Font
-except:
-	print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
-	libraryNotFound = True
+    from defcon import Font
+except ImportError:
+    print("ERROR: This script requires defcon. It can be downloaded from "
+          "https://github.com/typesupply/defcon")
+    libraryNotFound = True
 try:
-	import kernFeatureWriter
-except:
-	print "ERROR: This script requires kernFeatureWriter.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
-	libraryNotFound = True
+    import kernFeatureWriter
+except ImportError:
+    print("ERROR: This script requires kernFeatureWriter.py. It can be "
+          "downloaded from https://github.com/adobe-type-tools/python-modules")
+    libraryNotFound = True
 
 if libraryNotFound:
-	sys.exit()
+    sys.exit()
 
 fontsList = []
 
 
 def getFontPaths(path, startpath):
-	files = os.listdir(path)
-	for file in files:
-		if file[-4:].lower() in [".ufo"]:
-			fontsList.append(os.path.join(path, file))
-		else:
-			if os.path.isdir(os.path.join(path, file)):
-				getFontPaths(os.path.join(path, file), startpath)
+    files = os.listdir(path)
+    for file in files:
+        if file[-4:].lower() in [".ufo"]:
+            fontsList.append(os.path.join(path, file))
+        else:
+            if os.path.isdir(os.path.join(path, file)):
+                getFontPaths(os.path.join(path, file), startpath)
 
 
 def doTask(fonts, startpath):
-	totalFonts = len(fonts)
-	print "%d fonts found\n" % totalFonts
-	i = 0
+    totalFonts = len(fonts)
+    print("%d fonts found\n" % totalFonts)
+    i = 0
 
-	for font in fonts:
-		i += 1
-		folderPath, fontFileName = os.path.split(font)
-		# path to the folder where the font is contained and the font's file name
-		styleName = os.path.basename(folderPath)
-		folderPath = os.path.abspath(folderPath)
-		# name of the folder where the font is contained
+    for font in fonts:
+        i += 1
+        folderPath, fontFileName = os.path.split(font)
+        # path to the folder where the font is contained
+        # and the font's file name
+        styleName = os.path.basename(folderPath)
+        folderPath = os.path.abspath(folderPath)
+        # name of the folder where the font is contained
 
-		# Change current directory to the folder where the font is contained
-		os.chdir(folderPath)
+        # Change current directory to the folder where the font is contained
+        os.chdir(folderPath)
 
-		exportMessage = 'Exporting kern files for %s...(%d/%d)' % (
-			styleName, i, totalFonts)
-		print '*' * len(exportMessage)
-		print exportMessage
+        exportMessage = 'Exporting kern files for %s...(%d/%d)' % (
+            styleName, i, totalFonts)
+        print('*' * len(exportMessage))
+        print(exportMessage)
 
-		ufoFont = Font(fontFileName)
-		kernFeatureWriter.run(ufoFont, folderPath, minKern, writeSubtables)
+        ufoFont = Font(fontFileName)
+        kernFeatureWriter.run(ufoFont, folderPath, minKern, writeSubtables)
 
-		os.chdir(startpath)
+        os.chdir(startpath)
 
 
 def run():
-	# if a path is provided
-	if len(sys.argv[1:]):
-		baseFolderPath = os.path.normpath(sys.argv[1])
+    # if a path is provided
+    if len(sys.argv[1:]):
+        baseFolderPath = os.path.normpath(sys.argv[1])
 
-		# make sure the path is valid
-		if not os.path.isdir(baseFolderPath):
-			print 'Invalid directory.'
-			return
+        # make sure the path is valid
+        if not os.path.isdir(baseFolderPath):
+            print('Invalid directory.')
+            return
 
-	# if a path is not provided, use the current directory
-	else:
-		baseFolderPath = os.getcwd()
+    # if a path is not provided, use the current directory
+    else:
+        baseFolderPath = os.getcwd()
 
-	t1 = time.time()
-	getFontPaths(baseFolderPath, baseFolderPath)
-	startpath = os.path.abspath(os.path.curdir)
-	if len(fontsList):
-		doTask(fontsList, startpath)
-	else:
-		print "No fonts found"
-		return
+    t1 = time.time()
+    getFontPaths(baseFolderPath, baseFolderPath)
+    startpath = os.path.abspath(os.path.curdir)
+    if len(fontsList):
+        doTask(fontsList, startpath)
+    else:
+        print("No fonts found")
+        return
 
-	t2 = time.time()
-	elapsedSeconds = t2-t1
+    t2 = time.time()
+    elapsedSeconds = t2 - t1
 
-	if (elapsedSeconds/60) < 1:
-		print 'Completed in %.1f seconds.' % elapsedSeconds
-	else:
-		print 'Completed in %.1f minutes.' % (elapsedSeconds/60)
+    if (elapsedSeconds // 60) < 1:
+        print('Completed in %.1f seconds.' % elapsedSeconds)
+    else:
+        print('Completed in %.1f minutes.' % (elapsedSeconds // 60))
 
 
-if __name__=='__main__':
-	run()
+if __name__ == '__main__':
+    run()
