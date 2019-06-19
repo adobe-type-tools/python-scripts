@@ -13,25 +13,6 @@ import os
 import sys
 import time
 
-############################################
-# THE VALUES BELOW CAN BE EDITED AS NEEDED #
-############################################
-
-minKern = 3
-# This value is inclusive; this means that pairs which EQUAL this ABSOLUTE
-# value will NOT be ignored/trimmed. Anything kerning pair that falls below
-# will be ignored.
-writeTrimmed = False
-# If 'False', trimmed pairs will not be processed and therefore will not be
-# written to the kerning feature file.
-# If 'True', trimmed pairs will be written, but commented out.
-writeSubtables = True
-# Sometimes the kerning feature file needs to have explicit subtable breaks,
-# otherwise the OTF won't compile due to a subtable overflow.
-
-
-############################################
-
 libraryNotFound = False
 
 try:
@@ -47,37 +28,24 @@ except ImportError:
           "downloaded from https://github.com/adobe-type-tools/python-modules")
     libraryNotFound = True
 
-if libraryNotFound:
-    sys.exit()
 
-fontsList = []
-
-
-def getFontPaths(path, startpath):
-    files = os.listdir(path)
-    for file in files:
-        if file[-4:].lower() in [".ufo"]:
-            fontsList.append(os.path.join(path, file))
-        else:
-            if os.path.isdir(os.path.join(path, file)):
-                getFontPaths(os.path.join(path, file), startpath)
+def getFontPaths(startpath):
+    font_paths = []
+    for dir_path, _, _ in os.walk(startpath):
+        if dir_path.lower().endswith('.ufo'):
+            font_paths.append(dir_path)
+    return sorted(font_paths)
 
 
 def doTask(fonts, startpath):
     totalFonts = len(fonts)
     print("%d fonts found\n" % totalFonts)
-    i = 0
 
-    for font in fonts:
-        i += 1
+    for i, font in enumerate(fonts, 1):
         folderPath, fontFileName = os.path.split(font)
-        # path to the folder where the font is contained
-        # and the font's file name
         styleName = os.path.basename(folderPath)
         folderPath = os.path.abspath(folderPath)
-        # name of the folder where the font is contained
 
-        # Change current directory to the folder where the font is contained
         os.chdir(folderPath)
 
         exportMessage = 'Exporting kern files for %s...(%d/%d)' % (
@@ -86,7 +54,7 @@ def doTask(fonts, startpath):
         print(exportMessage)
 
         ufoFont = Font(fontFileName)
-        kernFeatureWriter.run(ufoFont, folderPath, minKern, writeSubtables)
+        kernFeatureWriter.run(ufoFont, folderPath, writeSubtables=True)
 
         os.chdir(startpath)
 
@@ -99,20 +67,20 @@ def run():
         # make sure the path is valid
         if not os.path.isdir(baseFolderPath):
             print('Invalid directory.')
-            return
+            return 1
 
     # if a path is not provided, use the current directory
     else:
         baseFolderPath = os.getcwd()
 
     t1 = time.time()
-    getFontPaths(baseFolderPath, baseFolderPath)
+    fontsList = getFontPaths(baseFolderPath)
     startpath = os.path.abspath(os.path.curdir)
     if len(fontsList):
         doTask(fontsList, startpath)
     else:
         print("No fonts found")
-        return
+        return 1
 
     t2 = time.time()
     elapsedSeconds = t2 - t1
@@ -124,4 +92,6 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    if libraryNotFound:
+        sys.exit(1)
+    sys.exit(run())

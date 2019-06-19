@@ -1,118 +1,100 @@
-#!/usr/bin/python
+"""
+This script takes a path to a folder as input, finds all
+the UFOs inside that folder and its subdirectories, and outputs each
+font's anchors in feature file syntax. If a path is not provided, the
+script uses the current path as the top-most directory. The name of
+the resulting mark FEA files is managed by the markFeatureWriter
+module.
+"""
+
+from __future__ import print_function
 
 import os
 import sys
 import time
 
-############################################
-# THE VALUES BELOW CAN BE EDITED AS NEEDED #
-############################################
-
-writeClassesFile = True
-#  TRUE: Writes mark classes to external file.
-# FALSE: Writes mark classes as part of mark.fea file.
-genMkmkFeature = True
-#  TRUE: Writes mkmk.fea file.
-# FALSE: Ignores mark-to-mark placement.
-indianScriptsFormat = True
-#  TRUE: Writes abvm.fea and blwm.fea files.
-# FALSE: Writes simple mark.fea file.
-trimCasingTags = True
-#  TRUE: Trims casing tags so that all marks can be applied to UC/LC.
-# FALSE: Leaves casing tags as is.
-
-# ------------------------------------------
-
 libraryNotFound = False
 
 try:
-	from defcon import Font
-except:
-	print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
-	libraryNotFound = True
+    from defcon import Font
+except ImportError:
+    print("ERROR: This script requires defcon. It can be downloaded from "
+          "https://github.com/typesupply/defcon")
+    libraryNotFound = True
 try:
-	import WriteFeaturesMarkFDK
-except:
-	print "ERROR: This script requires WriteFeaturesMarkFDK.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
-	libraryNotFound = True
-
-if libraryNotFound:
-	sys.exit()
-
-fontsList = []
+    import markFeatureWriter
+except ImportError:
+    print("ERROR: This script requires markFeatureWriter.py. It can be "
+          "downloaded from https://github.com/adobe-type-tools/python-modules")
+    libraryNotFound = True
 
 
-def getFontPaths(path, startpath):
-	files = os.listdir(path)
-	for file in files:
-		if file[-4:].lower() in [".ufo"]:
-			fontsList.append(os.path.join(path, file))
-		else:
-			if os.path.isdir(os.path.join(path, file)):
-				getFontPaths(os.path.join(path, file), startpath)
+def getFontPaths(startpath):
+    font_paths = []
+    for dir_path, _, _ in os.walk(startpath):
+        if dir_path.lower().endswith('.ufo'):
+            font_paths.append(os.path.abspath(dir_path))
+    return sorted(font_paths)
 
 
 def doTask(fonts, startpath):
-	totalFonts = len(fonts)
-	print "%d fonts found\n" % totalFonts
-	i = 0
+    totalFonts = len(fonts)
+    print("%d fonts found\n" % totalFonts)
 
-	for font in fonts:
-		i += 1
-		folderPath, fontFileName = os.path.split(os.path.realpath(font))
-		styleName = os.path.basename(folderPath)
+    for i, font in enumerate(fonts, 1):
+        folderPath, fontFileName = os.path.split(font)
+        styleName = os.path.basename(folderPath)
+        folderPath = os.path.abspath(folderPath)
 
-		# Change current directory to the folder where the font is contained
-		os.chdir(folderPath)
-		exportMessage = 'Exporting mark files for %s...(%d/%d)' % (
-			styleName, i, totalFonts)
-		print '*' * len(exportMessage)
-		print exportMessage
+        os.chdir(folderPath)
 
-		ufoFont = Font(fontFileName)
-		WriteFeaturesMarkFDK.MarkDataClass(
-			ufoFont, folderPath, trimCasingTags,
-			genMkmkFeature, writeClassesFile,
-			indianScriptsFormat
-		)
-		# go back to the start
-		os.chdir(startpath)
+        exportMessage = 'Exporting mark files for %s...(%d/%d)' % (
+            styleName, i, totalFonts)
+        print('*' * len(exportMessage))
+        print(exportMessage)
+
+        markFeatureWriter.run(font,
+                              write_classes=True,
+                              write_mkmk=True,
+                              indic_format=True,
+                              trim_tags=True,
+                              )
+        os.chdir(startpath)
 
 
 def run():
-	# if a path is provided
-	if len(sys.argv[1:]):
-		baseFolderPath = os.path.normpath(sys.argv[1])
+    # if a path is provided
+    if len(sys.argv[1:]):
+        baseFolderPath = os.path.normpath(sys.argv[1])
 
-		# make sure the path is valid
-		if not os.path.isdir(baseFolderPath):
-			print 'Invalid directory.'
-			return
+        # make sure the path is valid
+        if not os.path.isdir(baseFolderPath):
+            print('Invalid directory.')
+            return 1
 
-	# if a path is not provided, use the current directory
-	else:
-		baseFolderPath = os.getcwd()
+    # if a path is not provided, use the current directory
+    else:
+        baseFolderPath = os.getcwd()
 
-	t1 = time.time()
+    t1 = time.time()
+    fontsList = getFontPaths(baseFolderPath)
+    startpath = os.path.abspath(os.path.curdir)
+    if len(fontsList):
+        doTask(fontsList, startpath)
+    else:
+        print("No fonts found")
+        return 1
 
-	getFontPaths(baseFolderPath, baseFolderPath)
+    t2 = time.time()
+    elapsedSeconds = t2 - t1
 
-	# the path from which the script is executed
-	startpath = os.path.abspath(os.path.curdir)
-	if len(fontsList):
-		doTask(fontsList, startpath)
-	else:
-		print "No fonts found"
-		return
-
-	t2 = time.time()
-	elapsedSeconds = t2-t1
-
-	if (elapsedSeconds/60) < 1:
-		print 'Completed in %.1f seconds.' % elapsedSeconds
-	else:
-		print 'Completed in %.1f minutes.' % (elapsedSeconds/60)
+    if (elapsedSeconds // 60) < 1:
+        print('Completed in %.1f seconds.' % elapsedSeconds)
+    else:
+        print('Completed in %.1f minutes.' % (elapsedSeconds // 60))
 
 
-if __name__=='__main__':
-	run()
+if __name__ == '__main__':
+    if libraryNotFound:
+        sys.exit(1)
+    sys.exit(run())
