@@ -26,75 +26,76 @@ trimCasingTags = True
 libraryNotFound = False
 
 try:
-	from defcon import Font
+    from defcon import Font
 except:
-	print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
-	libraryNotFound = True
+    print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
+    libraryNotFound = True
 try:
-	import WriteFeaturesMarkFDK
+    import WriteFeaturesMarkFDK
 except:
-	print "ERROR: This script requires WriteFeaturesMarkFDK.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
-	libraryNotFound = True
+    print "ERROR: This script requires WriteFeaturesMarkFDK.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
+    libraryNotFound = True
 
 if libraryNotFound:
-	sys.exit()
+    sys.exit()
 
 
 def generateMarkFiles(font):
 
-	folderPath, fontFileName = os.path.split(font)
-	# path to the folder where the font is contained and the font's file name
-	os.chdir(folderPath)
+    folderPath, fontFileName = os.path.split(font)
+    # path to the folder where the font is contained and the font's file name
+    os.chdir(folderPath)
 
-	ufoFont = Font(fontFileName)
-	styleName = ufoFont.info.styleName
+    ufoFont = Font(fontFileName)
+    styleName = ufoFont.info.styleName
 
-	print '*******************************'
-	print 'Exporting mark files for %s...' % (styleName)
+    print '*******************************'
+    print 'Exporting mark files for %s...' % (styleName)
 
-	WriteFeaturesMarkFDK.MarkDataClass(
-		ufoFont, folderPath, trimCasingTags,
-		genMkmkFeature, writeClassesFile, indianScriptsFormat
-	)
+    WriteFeaturesMarkFDK.MarkDataClass(
+        ufoFont, folderPath, trimCasingTags,
+        genMkmkFeature, writeClassesFile, indianScriptsFormat
+    )
 
 
 def run():
-	# if a path is provided
-	if len(sys.argv[1:]):
-		baseFolderPath = sys.argv[1]
+    # if a path is provided
+    if len(sys.argv[1:]):
+        baseFolderPath = sys.argv[1]
 
-		if baseFolderPath[-1] == '/':  # remove last slash if present
-			baseFolderPath = baseFolderPath[:-1]
+        if baseFolderPath[-1] == '/':  # remove last slash if present
+            baseFolderPath = baseFolderPath[:-1]
 
-		# make sure the path is valid
-		if not os.path.isdir(baseFolderPath):
-			print 'Invalid directory.'
-			return
+        # make sure the path is valid
+        if not os.path.isdir(baseFolderPath):
+            print 'Invalid directory.'
+            return
 
-	# if a path is not provided, use the current directory
-	else:
-		baseFolderPath = os.getcwd()
+    # if a path is not provided, use the current directory
+    else:
+        baseFolderPath = os.getcwd()
 
-	t1 = time.time()
+    t1 = time.time()
 
-	fontPath = os.path.abspath(sys.argv[-1])
-	print fontPath
+    fontPath = os.path.abspath(sys.argv[-1])
+    print fontPath
 
-	if os.path.exists(fontPath) and fontPath.lower().endswith('.ufo'):
-		generateMarkFiles(fontPath)
+    if os.path.exists(fontPath) and fontPath.lower().endswith('.ufo'):
+        generateMarkFiles(fontPath)
 
-	else:
-		print "No fonts found"
-		return
+    else:
+        print "No fonts found"
+        return
 
-	t2 = time.time()
-	elapsedSeconds = t2-t1
+    t2 = time.time()
+    elapsedSeconds = t2 - t1
+    elapsedMinutes = elapsedSeconds / 60
 
-	if (elapsedSeconds/60) < 1:
-		print 'Completed in %.1f seconds.' % elapsedSeconds
-	else:
-		print 'Completed in %.1f minutes.' % (elapsedSeconds/60)
+    if elapsedMinutes < 1:
+        print(('Completed in %.1f seconds.' % elapsedSeconds))
+    else:
+        print(('Completed in %.1f minutes.' % elapsedMinutes))
 
 
-if __name__=='__main__':
-	run()
+if __name__ == '__main__':
+    run()

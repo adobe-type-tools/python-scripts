@@ -87,14 +87,13 @@ def run():
 
     t2 = time.time()
     elapsedSeconds = t2 - t1
+    elapsedMinutes = elapsedSeconds / 60
 
-    if (elapsedSeconds // 60) < 1:
-        print('Completed in %.1f seconds.' % elapsedSeconds)
+    if elapsedMinutes < 1:
+        print(('Completed in %.1f seconds.' % elapsedSeconds))
     else:
-        print('Completed in %.1f minutes.' % (elapsedSeconds // 60))
+        print(('Completed in %.1f minutes.' % elapsedMinutes))
 
 
 if __name__ == '__main__':
-    if libraryNotFound:
-        sys.exit(1)
-    sys.exit(run())
+    run()

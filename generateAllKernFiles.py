@@ -18,14 +18,18 @@ libraryNotFound = False
 try:
     from defcon import Font
 except ImportError:
-    print("ERROR: This script requires defcon. It can be downloaded from "
-          "https://github.com/typesupply/defcon")
+    print(
+        "ERROR: This script requires defcon. It can be downloaded from "
+        "https://github.com/typesupply/defcon"
+    )
     libraryNotFound = True
 try:
     import kernFeatureWriter
 except ImportError:
-    print("ERROR: This script requires kernFeatureWriter.py. It can be "
-          "downloaded from https://github.com/adobe-type-tools/python-modules")
+    print(
+        "ERROR: This script requires kernFeatureWriter.py. It can be "
+        "downloaded from https://github.com/adobe-type-tools/python-modules"
+    )
     libraryNotFound = True
 
 
@@ -84,14 +88,15 @@ def run():
 
     t2 = time.time()
     elapsedSeconds = t2 - t1
+    elapsedMinutes = elapsedSeconds / 60
 
-    if (elapsedSeconds // 60) < 1:
-        print('Completed in %.1f seconds.' % elapsedSeconds)
+    if elapsedMinutes < 1:
+        print(('Completed in %.1f seconds.' % elapsedSeconds))
     else:
-        print('Completed in %.1f minutes.' % (elapsedSeconds // 60))
+        print(('Completed in %.1f minutes.' % elapsedMinutes))
 
 
 if __name__ == '__main__':
     if libraryNotFound:
         sys.exit(1)
-    sys.exit(run())
+    run()

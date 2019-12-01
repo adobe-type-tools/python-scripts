@@ -1,9 +1,9 @@
 # Copyright 2014 Adobe. All rights reserved.
 
 """
-For a UFO font, check that the glyph hashes stored when checkOutlines or autohint
-were last run still match the source glyph hashes. If not, all outdated glyphs are
-deleted from the Adobe processed layer.
+For a UFO font, check that the glyph hashes stored when checkOutlines or
+autohint were last run still match the source glyph hashes.
+If not, all outdated glyphs are deleted from the Adobe processed layer.
 """
 
 __usage__ = """
@@ -26,15 +26,15 @@ kSrcGLIFHashMap = "com.adobe.type.autoHintHashMap"
 
 
 def run():
-	fontPath = sys.argv[1]
-	doSync = True
-	allMatch, msgList = ufoTools.checkHashMaps(fontPath, doSync)
-	if allMatch:
-		print "All processed glyphs match"
-	else:
-		for msg in msgList:
-			print msg
+    fontPath = sys.argv[1]
+    doSync = True
+    allMatch, msgList = ufoTools.checkHashMaps(fontPath, doSync)
+    if allMatch:
+        print("All processed glyphs match")
+    else:
+        for msg in msgList:
+            print(msg)
 
 
 if __name__ == "__main__":
-	run()
+    run()

@@ -26,97 +26,98 @@ fontsList = []
 
 
 def getFontPaths(path):
-	fontsList = []
-	for r, folders, files in os.walk(path):
-		for folder in folders:
-			fileName, extension = os.path.splitext(folder)
-			extension = extension.lower()
-			if extension == ".ufo":
-				fontsList.append(os.path.join(r, folder))
+    fontsList = []
+    for r, folders, files in os.walk(path):
+        for folder in folders:
+            fileName, extension = os.path.splitext(folder)
+            extension = extension.lower()
+            if extension == ".ufo":
+                fontsList.append(os.path.join(r, folder))
 
-	return fontsList
+    return fontsList
 
 
 def doTask(fonts):
-	totalFonts = len(fonts)
-	print("%d fonts found" % totalFonts)
-	i = 1
+    totalFonts = len(fonts)
+    print("%d fonts found" % totalFonts)
+    i = 1
 
-	for font in fonts:
-		folderPath, fontFileName = os.path.split(font)
-		styleName = os.path.basename(folderPath)
+    for font in fonts:
+        folderPath, fontFileName = os.path.split(font)
+        styleName = os.path.basename(folderPath)
 
-		# Change current directory to the folder where the font is contained
-		os.chdir(folderPath)
+        # Change current directory to the folder where the font is contained
+        os.chdir(folderPath)
 
-		print('\n*******************************')
-		print('Processing %s...(%d/%d)' % (styleName, i, totalFonts))
+        print('\n*******************************')
+        print('Processing %s...(%d/%d)' % (styleName, i, totalFonts))
 
-		# Assemble TXT & PFA file names
-		fileNameNoExtension, fileExtension = os.path.splitext(fontFileName)
-		pfaPath = fileNameNoExtension + '.pfa'
-		txtPath = fileNameNoExtension + '.txt'
+        # Assemble TXT & PFA file names
+        fileNameNoExtension, fileExtension = os.path.splitext(fontFileName)
+        pfaPath = fileNameNoExtension + '.pfa'
+        txtPath = fileNameNoExtension + '.txt'
 
-		# Convert UFO to PFA using tx
-		cmd = 'tx -t1 "%s" "%s"' % (fontFileName, pfaPath)
-		popen = Popen(cmd, shell=True, stdout=PIPE)
-		popenout, popenerr = popen.communicate()
-		if popenout:
-			print(popenout)
-		if popenerr:
-			print(popenerr)
+        # Convert UFO to PFA using tx
+        cmd = 'tx -t1 "%s" "%s"' % (fontFileName, pfaPath)
+        popen = Popen(cmd, shell=True, stdout=PIPE)
+        popenout, popenerr = popen.communicate()
+        if popenout:
+            print(popenout)
+        if popenerr:
+            print(popenerr)
 
-		# Convert PFA to TXT using detype1
-		cmd = 'detype1 "%s" > "%s"' % (pfaPath, txtPath)
-		popen = Popen(cmd, shell=True, stdout=PIPE)
-		popenout, popenerr = popen.communicate()
-		if popenout:
-			print(popenout)
-		if popenerr:
-			print(popenerr)
+        # Convert PFA to TXT using detype1
+        cmd = 'detype1 "%s" > "%s"' % (pfaPath, txtPath)
+        popen = Popen(cmd, shell=True, stdout=PIPE)
+        popenout, popenerr = popen.communicate()
+        if popenout:
+            print(popenout)
+        if popenerr:
+            print(popenerr)
 
-		# Delete PFA font
-		if os.path.exists(pfaPath):
-			os.remove(pfaPath)
+        # Delete PFA font
+        if os.path.exists(pfaPath):
+            os.remove(pfaPath)
 
-		i += 1
+        i += 1
 
 
 def run():
-	# if a path is provided
-	if len(sys.argv[1:]):
-		baseFolderPath = sys.argv[1]
+    # if a path is provided
+    if len(sys.argv[1:]):
+        baseFolderPath = sys.argv[1]
 
-		if baseFolderPath[-1] == '/':  # remove last slash if present
-			baseFolderPath = baseFolderPath[:-1]
+        if baseFolderPath[-1] == '/':  # remove last slash if present
+            baseFolderPath = baseFolderPath[:-1]
 
-		# make sure the path is valid
-		if not os.path.isdir(baseFolderPath):
-			print('Invalid directory.')
-			return
+        # make sure the path is valid
+        if not os.path.isdir(baseFolderPath):
+            print('Invalid directory.')
+            return
 
-	# if a path is not provided, use the current directory
-	else:
-		baseFolderPath = os.getcwd()
+    # if a path is not provided, use the current directory
+    else:
+        baseFolderPath = os.getcwd()
 
-	t1 = time.time()
+    t1 = time.time()
 
-	getFontPaths(os.path.abspath(baseFolderPath))
+    getFontPaths(os.path.abspath(baseFolderPath))
 
-	if len(fontsList):
-		doTask(fontsList)
-	else:
-		print("No fonts found.")
-		return
+    if len(fontsList):
+        doTask(fontsList)
+    else:
+        print("No fonts found.")
+        return
 
-	t2 = time.time()
-	elapsedSeconds = t2-t1
+    t2 = time.time()
+    elapsedSeconds = t2 - t1
+    elapsedMinutes = elapsedSeconds / 60
 
-	if (elapsedSeconds/60) < 1:
-		print('\nCompleted in %.1f seconds.' % elapsedSeconds)
-	else:
-		print('\nCompleted in %.1f minutes.' % (elapsedSeconds/60))
+    if elapsedMinutes < 1:
+        print('Completed in %.1f seconds.' % elapsedSeconds)
+    else:
+        print('Completed in %.1f minutes.' % elapsedMinutes)
 
 
-if __name__=='__main__':
-	run()
+if __name__ == '__main__':
+    run()
