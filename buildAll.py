@@ -31,82 +31,82 @@ kFontTXT = "font.txt"
 
 
 def getFontPaths(path):
-	fontsList = []
-	for r, folders, files in os.walk(os.path.realpath(path)):
-		fileAndFolderList = folders[:]
-		fileAndFolderList.extend(files)
+    fontsList = []
+    for r, folders, files in os.walk(os.path.realpath(path)):
+        fileAndFolderList = folders[:]
+        fileAndFolderList.extend(files)
 
-		for item in fileAndFolderList:
-			fileName, extension = os.path.splitext(item)
-			extension = extension.lower()
-			if extension == ".pfa" and not fileName == "mmfont":
-				fontsList.append(os.path.join(r, item))
-			elif extension == ".txt" and fileName == "font":
-				fontsList.append(os.path.join(r, item))
-			elif extension == ".ufo":
-				fontsList.append(os.path.join(r, item))
-			else:
-				continue
+        for item in fileAndFolderList:
+            fileName, extension = os.path.splitext(item)
+            extension = extension.lower()
+            if extension == ".pfa" and not fileName == "mmfont":
+                fontsList.append(os.path.join(r, item))
+            elif extension == ".txt" and fileName == "font":
+                fontsList.append(os.path.join(r, item))
+            elif extension == ".ufo":
+                fontsList.append(os.path.join(r, item))
+            else:
+                continue
 
-	return fontsList
+    return fontsList
 
 
 def doTask(fonts):
-	totalFonts = len(fonts)
-	print("%d fonts found\n" % totalFonts)
-	i = 1
+    totalFonts = len(fonts)
+    print("%d fonts found\n" % totalFonts)
+    i = 1
 
-	for font in fonts:
-		folderPath, fontFileName = os.path.split(font)
-		styleName = os.path.basename(folderPath)
+    for font in fonts:
+        folderPath, fontFileName = os.path.split(font)
+        styleName = os.path.basename(folderPath)
 
-		# Change current directory to the folder where the font is contained
-		os.chdir(folderPath)
+        # Change current directory to the folder where the font is contained
+        os.chdir(folderPath)
 
-		print('*******************************')
-		print('Building %s...(%d/%d)' % (styleName, i, totalFonts))
-		cmd = 'makeotf -f "%s" -gs -r' % fontFileName  # -gs option: only the glyphs listed in the GOADB file will be included in OTF
-		# cmd = 'makeotf -f "%s" -addn -r' % fontFileName  # adds marking notdef glyph
-		popen = Popen(cmd, shell=True, stdout=PIPE)
-		popenout, popenerr = popen.communicate()
-		if popenout:
-			print(popenout.decode('utf-8'))
-		if popenerr:
-			print(popenerr.decode('utf-8'))
-		i += 1
+        print('*******************************')
+        print('Building %s...(%d/%d)' % (styleName, i, totalFonts))
+        cmd = 'makeotf -f "%s" -gs -r' % fontFileName  # -gs option: only the glyphs listed in the GOADB file will be included in OTF
+        # cmd = 'makeotf -f "%s" -addn -r' % fontFileName  # adds marking notdef glyph
+        popen = Popen(cmd, shell=True, stdout=PIPE)
+        popenout, popenerr = popen.communicate()
+        if popenout:
+            print(popenout.decode('utf-8'))
+        if popenerr:
+            print(popenerr.decode('utf-8'))
+        i += 1
 
-		# Delete project file
-		if os.path.exists(kFontProjFile):
-			os.remove(kFontProjFile)
+        # Delete project file
+        if os.path.exists(kFontProjFile):
+            os.remove(kFontProjFile)
 
 
 def run():
-	# if a path is provided
-	if len(sys.argv[1:]):
-		baseFolderPath = sys.argv[1]
+    # if a path is provided
+    if len(sys.argv[1:]):
+        baseFolderPath = sys.argv[1]
 
-		if baseFolderPath[-1] == '/':  # remove last slash if present
-			baseFolderPath = baseFolderPath[:-1]
+        if baseFolderPath[-1] == '/':  # remove last slash if present
+            baseFolderPath = baseFolderPath[:-1]
 
-		# make sure the path is valid
-		if not os.path.isdir(baseFolderPath):
-			print('Invalid directory.')
-			return
+        # make sure the path is valid
+        if not os.path.isdir(baseFolderPath):
+            print('Invalid directory.')
+            return
 
-	# if a path is not provided, use the current directory
-	else:
-		baseFolderPath = os.getcwd()
+    # if a path is not provided, use the current directory
+    else:
+        baseFolderPath = os.getcwd()
 
-	t1 = time.time()
-	fontsList = getFontPaths(baseFolderPath)
+    t1 = time.time()
+    fontsList = getFontPaths(baseFolderPath)
 
-	if len(fontsList):
-		doTask(fontsList)
-	else:
-		print("No fonts found")
-		return
+    if len(fontsList):
+        doTask(fontsList)
+    else:
+        print("No fonts found")
+        return
 
-	t2 = time.time()
+    t2 = time.time()
     elapsedSeconds = t2 - t1
     elapsedMinutes = elapsedSeconds / 60
 
@@ -117,4 +117,4 @@ def run():
 
 
 if __name__=='__main__':
-	run()
+    run()
