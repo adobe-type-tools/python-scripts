@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os
 import sys
@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 
 
 __doc__ = """
-buildAll v1.1 - Aug 04 2013
+buildAll v1.2 - Dec 01 2019
 
 This script takes a path to a folder as input, finds all the Type 1 fonts
 (.pfa files) or UFO fonts inside that folder and its subdirectories, and
@@ -22,6 +22,7 @@ by using the FDK's detype1 tool.
 Versions:
 v1.0 - Feb 22 2013 - Initial release
 v1.1 - Aug 04 2013 - Added support for UFO files
+v1.2 - Dec 01 2019 - Python 3
 """
 
 kFontProjFile = "current.fpr"
@@ -51,7 +52,7 @@ def getFontPaths(path):
 
 def doTask(fonts):
 	totalFonts = len(fonts)
-	print "%d fonts found\n" % totalFonts
+	print("%d fonts found\n" % totalFonts)
 	i = 1
 
 	for font in fonts:
@@ -61,16 +62,16 @@ def doTask(fonts):
 		# Change current directory to the folder where the font is contained
 		os.chdir(folderPath)
 
-		print '*******************************'
-		print 'Building %s...(%d/%d)' % (styleName, i, totalFonts)
+		print('*******************************')
+		print('Building %s...(%d/%d)' % (styleName, i, totalFonts))
 		cmd = 'makeotf -f "%s" -gs -r' % fontFileName  # -gs option: only the glyphs listed in the GOADB file will be included in OTF
 		# cmd = 'makeotf -f "%s" -addn -r' % fontFileName  # adds marking notdef glyph
 		popen = Popen(cmd, shell=True, stdout=PIPE)
 		popenout, popenerr = popen.communicate()
 		if popenout:
-			print popenout
+			print(popenout.decode('utf-8'))
 		if popenerr:
-			print popenerr
+			print(popenerr.decode('utf-8'))
 		i += 1
 
 		# Delete project file
@@ -88,7 +89,7 @@ def run():
 
 		# make sure the path is valid
 		if not os.path.isdir(baseFolderPath):
-			print 'Invalid directory.'
+			print('Invalid directory.')
 			return
 
 	# if a path is not provided, use the current directory
@@ -101,16 +102,16 @@ def run():
 	if len(fontsList):
 		doTask(fontsList)
 	else:
-		print "No fonts found"
+		print("No fonts found")
 		return
 
 	t2 = time.time()
 	elapsedSeconds = t2-t1
 
 	if (elapsedSeconds/60) < 1:
-		print 'Completed in %.1f seconds.' % elapsedSeconds
+		print('Completed in %.1f seconds.' % elapsedSeconds)
 	else:
-		print 'Completed in %.1f minutes.' % (elapsedSeconds/60)
+		print('Completed in %.1f minutes.' % (elapsedSeconds/60))
 
 
 if __name__=='__main__':
