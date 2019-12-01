@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os
 import sys
@@ -27,13 +27,18 @@ libraryNotFound = False
 
 try:
     from defcon import Font
-except:
-    print "ERROR: This script requires defcon. It can be downloaded from https://github.com/typesupply/defcon"
+except ImportError:
+    print(
+        "ERROR: This script requires defcon. "
+        "It can be downloaded from https://github.com/typesupply/defcon")
     libraryNotFound = True
 try:
     import WriteFeaturesMarkFDK
-except:
-    print "ERROR: This script requires WriteFeaturesMarkFDK.py. It can be downloaded from https://github.com/adobe-type-tools/python-modules"
+except ImportError:
+    print(
+        "ERROR: This script requires WriteFeaturesMarkFDK.py. "
+        "It can be downloaded from "
+        "https://github.com/adobe-type-tools/python-modules")
     libraryNotFound = True
 
 if libraryNotFound:
@@ -49,8 +54,8 @@ def generateMarkFiles(font):
     ufoFont = Font(fontFileName)
     styleName = ufoFont.info.styleName
 
-    print '*******************************'
-    print 'Exporting mark files for %s...' % (styleName)
+    print('*******************************')
+    print('Exporting mark files for %s...' % (styleName))
 
     WriteFeaturesMarkFDK.MarkDataClass(
         ufoFont, folderPath, trimCasingTags,
@@ -68,7 +73,7 @@ def run():
 
         # make sure the path is valid
         if not os.path.isdir(baseFolderPath):
-            print 'Invalid directory.'
+            print('Invalid directory.')
             return
 
     # if a path is not provided, use the current directory
@@ -78,13 +83,13 @@ def run():
     t1 = time.time()
 
     fontPath = os.path.abspath(sys.argv[-1])
-    print fontPath
+    print(fontPath)
 
     if os.path.exists(fontPath) and fontPath.lower().endswith('.ufo'):
         generateMarkFiles(fontPath)
 
     else:
-        print "No fonts found"
+        print("No fonts found")
         return
 
     t2 = time.time()

@@ -1,6 +1,6 @@
 # Python scripts
 
-Assortment of scripts that run on the command line, i.e. *Terminal* on Mac OS X, and *Command Prompt* on Windows.
+Assortment of scripts that run on the command line, i.e. *Terminal* on macOS, and *Command Prompt* on Windows.
 
 ## Description
 
@@ -124,13 +124,8 @@ Here is a list of the locations from which you may need to get the extra tools a
 
 * [FontTools](https://github.com/fonttools/fonttools)
 
-* ~[RoboFab](https://github.com/robofab-developers/robofab)~
-* ~[FontParts](https://github.com/robofab-developers/robofab)~
-
 * [Type Supply Tools](https://github.com/typesupply)
     * defcon
-    * ufo2fdk
-    * woffTools
 
 ## General usage information
 
