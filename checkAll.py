@@ -9,12 +9,13 @@ from subprocess import Popen, PIPE
 __doc__ = """
 checkAll v1.2 - Dec 01 2019
 
-This script takes a path to a folder as input, finds all UFO files (or Type 1
-fonts - .pfa files) inside that folder and its subdirectories, and removes
+This script takes a path to a folder as input, finds all UFO files or Type 1
+fonts (.pfa files) inside that folder and its subdirectories, and removes
 their overlaps using the FDK's checkoutlinesufo tool.
 If a path is not provided, the script will use the current path as the topmost
-directory. The script ignores MM PFA fonts, usually named 'mmfont.pfa'.
-Type 1 fonts can also be in plain text format (.txt) where the Private
+directory.
+The script ignores Multiple Master PFA fonts, usually named 'mmfont.pfa'.
+The Type 1 fonts can also be in plain text format (.txt) where the Private
 and CharStrings dictionaries are not encrypted. These files can be created
 by using the FDK's detype1 tool.
 

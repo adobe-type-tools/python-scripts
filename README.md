@@ -19,7 +19,7 @@ For a given directory, this script goes through every subfolder and runs `makeOT
 
 ### `checkAll.py`
 
-Run `checkOutlines -e` to remove overlaps in all source files (`.ufo`, `.pfa`) contained in a given directory tree.  
+Run `checkoutlinesufo -e` to remove overlaps in all source files (`.ufo`, `.pfa`) contained in a given directory tree.  
 
 `-e`: This option results in changes to outlines. For a PFA file means that overlapping glyphs will be replaced by new ones (therefore may be lost). In a UFO file, new glyphs are written to a new `glyphs.com.adobe.type.processedGlyphs` layer, which does not interfere with the foreground, and is used by `makeotf` to generate font binaries.
 
@@ -27,9 +27,7 @@ Run `checkOutlines -e` to remove overlaps in all source files (`.ufo`, `.pfa`) c
 
 ### `hintAll.py`
 
-Run `autohint -q` to add hints to all glyphs in in all source files (`.ufo`, `.pfa`) contained in a given directory tree. 
-
-`-q`: quiet operation
+Run `psautohint` to add hints to all glyphs in in all source files (`.ufo`, `.pfa`) contained in a given directory tree. 
 
 In a UFO file, hinted glyphs are written to a new `glyphs.com.adobe.type.processedGlyphs` layer, which does not interfere with the foreground, and is used by `makeotf` to generate font binaries.
 
@@ -149,7 +147,7 @@ Here is a list of the locations from which you may need to get the extra tools a
 
 * [Adobe Font Development Kit for OpenType (AFDKO)](https://github.com/adobe-type-tools/afdko)
     * makeotf
-    * autohint
+    * psautohint
     * tx
     * ttx
     * detype1
@@ -157,7 +155,8 @@ Here is a list of the locations from which you may need to get the extra tools a
 
 * [FontTools](https://github.com/fonttools/fonttools)
 
-* [RoboFab](https://github.com/robofab-developers/robofab)
+* ~[RoboFab](https://github.com/robofab-developers/robofab)~
+* ~[FontParts](https://github.com/robofab-developers/robofab)~
 
 * [Type Supply Tools](https://github.com/typesupply)
     * defcon

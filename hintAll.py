@@ -9,13 +9,14 @@ from subprocess import Popen, PIPE
 __doc__ = """
 hintAll v1.2 - Dec 01 2019
 
-This script takes a path to a folder as input, finds all the Type 1 fonts
-(.pfa files) or UFO fonts inside that folder and its subdirectories, and
-hints them using the FDK's psautohint tool. If a path is not provided, the
-script will use the current path as the top-most directory.
+This script takes a path to a folder as input, finds all UFO files or Type 1
+fonts (.pfa files) inside that folder and its subdirectories, and hints them
+using the FDK's psautohint tool.
+If a path is not provided, the script will use the current path as the topmost
+directory.
 The script ignores Multiple Master PFA fonts, usually named 'mmfont.pfa'.
 The Type 1 fonts can also be in plain text format (.txt) where the Private
-and CharStrings dictionaries are not encrypted. These files can be obtained
+and CharStrings dictionaries are not encrypted. These files can be created
 by using the FDK's detype1 tool.
 
 ==================================================

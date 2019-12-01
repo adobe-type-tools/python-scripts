@@ -9,13 +9,14 @@ from subprocess import Popen, PIPE
 __doc__ = """
 buildAll v1.2 - Dec 01 2019
 
-This script takes a path to a folder as input, finds all the Type 1 fonts
-(.pfa files) or UFO fonts inside that folder and its subdirectories, and
-builds the OpenType (.otf) fonts using the FDK's makeotf tool. If a path is
-not provided, the script will use the current path as the top-most directory.
-The script ignores MM PFA fonts, usually named 'mmfont.pfa'.
+This script takes a path to a folder as input, finds all UFO files or Type 1
+fonts (.pfa files) inside that folder and its subdirectories, and builds
+OpenType (.otf) fonts using the FDK's makeotf tool.
+If a path is not provided, the script will use the current path as the topmost
+directory.
+The script ignores Multiple Master PFA fonts, usually named 'mmfont.pfa'.
 The Type 1 fonts can also be in plain text format (.txt) where the Private
-and CharStrings dictionaries are not encrypted. These files can be obtained
+and CharStrings dictionaries are not encrypted. These files can be created
 by using the FDK's detype1 tool.
 
 ==================================================
@@ -106,12 +107,13 @@ def run():
 		return
 
 	t2 = time.time()
-	elapsedSeconds = t2-t1
+    elapsedSeconds = t2 - t1
+    elapsedMinutes = elapsedSeconds / 60
 
-	if (elapsedSeconds/60) < 1:
-		print('Completed in %.1f seconds.' % elapsedSeconds)
-	else:
-		print('Completed in %.1f minutes.' % (elapsedSeconds/60))
+    if elapsedMinutes < 1:
+        print('Completed in %.1f seconds.' % elapsedSeconds)
+    else:
+        print('Completed in %.1f minutes.' % elapsedMinutes)
 
 
 if __name__=='__main__':
