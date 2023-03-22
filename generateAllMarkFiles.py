@@ -29,6 +29,15 @@ except ImportError:
     libraryNotFound = True
 
 
+def initArgs(font):
+    args = markFeatureWriter.Defaults()
+    args.input_file = font
+    args.write_classes = True
+    args.write_mkmk = True
+    args.indic_format = True
+    args.trim_tags = True
+    return args
+
 def getFontPaths(startpath):
     font_paths = []
     for dir_path, _, _ in os.walk(startpath):
@@ -53,12 +62,7 @@ def doTask(fonts, startpath):
         print('*' * len(exportMessage))
         print(exportMessage)
 
-        markFeatureWriter.run(font,
-                              write_classes=True,
-                              write_mkmk=True,
-                              indic_format=True,
-                              trim_tags=True,
-                              )
+        markFeatureWriter.MarkFeatureWriter(initArgs(font))
         os.chdir(startpath)
 
 
